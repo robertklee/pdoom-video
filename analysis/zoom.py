@@ -34,12 +34,14 @@ def zoom(t0, t1, name):
     ax[2].plot(tt, f["mid_db"][i0:i1] - 40, "tab:red", lw=0.8, label="mid-40")
     axb = ax[2].twinx(); axb.fill_between(tt, 0, f["onset"][i0:i1], color="tab:green", alpha=0.3)
     ax[2].legend(loc="upper left", fontsize=7); ax[2].set_ylim(-70, 5)
-    P, OFF = 60 / 132, 0.708
-    for n in range(int((t0 - OFF) / P * 4) - 1, int((t1 - OFF) / P * 4) + 2):
-        tb = OFF + n * P / 4
-        if t0 <= tb <= t1:
-            for a_ in ax[2:]:
-                a_.axvline(tb, color="gray", lw=[1.4, 0.4, 0.8, 0.4][n % 4], ls="-" if n % 4 == 0 else ":")
+    grid = common.beat_grid()  # 16th-note grid of the analysed beats
+    if grid:
+        P, OFF = grid
+        for n in range(int((t0 - OFF) / P * 4) - 1, int((t1 - OFF) / P * 4) + 2):
+            tb = OFF + n * P / 4
+            if t0 <= tb <= t1:
+                for a_ in ax[2:]:
+                    a_.axvline(tb, color="gray", lw=[1.4, 0.4, 0.8, 0.4][n % 4], ls="-" if n % 4 == 0 else ":")
     for w in dbg:
         if w["end"] < t0 or w["start"] > t1: continue
         for a_ in ax[:3]:

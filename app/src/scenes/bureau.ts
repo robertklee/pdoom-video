@@ -15,7 +15,7 @@ import { type Line, type Word, norm } from '../engine/lyrics';
 import { F, font, measure, layout, glyphX } from '../engine/type';
 import { strokeText, drawStrokeText, type StrokeText } from '../engine/stroke';
 import { clamp, ease, lerp, prog, hash, noise1, pulse, TAU, frameIdx } from '../engine/util';
-import { PDoom, formatPDoom } from '../engine/hud';
+import { PDoom, formatPDoom } from './_pdoom';
 
 type Ctx2 = CanvasRenderingContext2D;
 interface Cam { x: number; y: number; z: number; r: number }

@@ -14,7 +14,7 @@ import { Lyrics, norm, type Line, type Word } from '../engine/lyrics';
 import { clamp, ease, hash, lerp, noise1, prog, smoothstep, TAU, frameIdx } from '../engine/util';
 import { sparkHead, sparkParticles, MASK } from './_motifs';
 import { SPECS, REPLY, META, type Variant, type Cand } from './prompt-data';
-import { PDoom, formatPDoom } from '../engine/hud';
+import { PDoom, formatPDoom } from './_pdoom';
 
 interface Tok {
   text: string; // visible text

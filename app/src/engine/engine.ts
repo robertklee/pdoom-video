@@ -5,7 +5,8 @@ import { AudioData } from './audio';
 import { Lyrics } from './lyrics';
 import { Compositor, FSPass, W, H, PW, PH, SCALE, SS_TAP, makeRT, clearRT } from './gl';
 import { DEFAULT_POST, Post, SHOULDER_GLSL, type PostParams } from './post';
-import { Hud, PDoom, type Caption } from './hud';
+import { Hud, type Caption } from './hud';
+import type { Readout } from './readout';
 import type { Frame, Scene, SceneClass, SceneCtx, PostOverrides } from './scene';
 import { loadFonts } from './type';
 import { loadStrokeFonts } from './stroke';
@@ -24,6 +25,19 @@ export interface TimelineEntry {
   params?: Record<string, any>;
   /** Cap on adaptive motion-blur sub-frames while this entry is on screen (for noise that converges slowly). */
   maxSamples?: number;
+  /** Scene module name, when it differs from the id (several entries sharing one module); used for hot reload. */
+  file?: string;
+}
+
+/**
+ * What the engine needs to know about one video: its edit, and its optional plug-ins. The engine
+ * itself is song-agnostic; a project (src/project.ts) builds these from the aligned data.
+ */
+export interface Project {
+  /** The edit: timeline entries anchored to lyric phrases and snapped to the beat grid (see edit.ts). */
+  timeline: (lyrics: Lyrics, audio: AudioData) => TimelineEntry[];
+  /** HUD readout plug-in (e.g. a WordCounter), shown in the corner when a scene returns post.readout > 0. */
+  readout?: (lyrics: Lyrics, audio: AudioData) => Readout;
 }
 
 interface Loaded { entry: TimelineEntry; scene: Scene | null; error?: string; lastT: number }
@@ -84,7 +98,7 @@ export class Engine {
 
   timeline: TimelineEntry[] = [];
 
-  constructor(public canvas: HTMLCanvasElement, private makeTimeline: (lyrics: Lyrics, audio: AudioData) => TimelineEntry[]) {
+  constructor(public canvas: HTMLCanvasElement, private project: Project) {
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: false, preserveDrawingBuffer: true, powerPreference: 'high-performance' });
     this.renderer.setPixelRatio(1);
     this.renderer.setSize(PW, PH, false);
@@ -140,14 +154,14 @@ export class Engine {
 
   async init(only?: (e: TimelineEntry) => boolean) {
     [this.audio, this.lyrics] = await Promise.all([AudioData.load(), Lyrics.load(), loadFonts(), loadStrokeFonts()]) as [AudioData, Lyrics, void, void];
-    this.timeline = this.makeTimeline(this.lyrics, this.audio);
+    this.timeline = this.project.timeline(this.lyrics, this.audio);
     this.ctx = { renderer: this.renderer, audio: this.audio, lyrics: this.lyrics, comp: this.comp, W, H, id: '', params: {}, start: 0, end: 0 };
     this.post = new Post();
     const captions: Caption[] = this.timeline.filter((e) => e.caption).map((e) => {
       const d = e.caption!.delay ?? 0.3;
       return { start: e.start + d, end: e.start + d + (e.caption!.dur ?? 4.5), fig: e.caption!.fig, text: e.caption!.text };
     });
-    this.hud = new Hud(new PDoom(this.lyrics), captions);
+    this.hud = new Hud(this.project.readout?.(this.lyrics, this.audio) ?? null, captions);
     const entries = only ? this.timeline.filter(only) : this.timeline;
     await Promise.all(entries.map((e) => this.loadEntry(e)));
   }
@@ -266,7 +280,7 @@ export class Engine {
       outTex = this.avgRT.texture;
     }
     this.lastSamples = n;
-    const hudTex = this.hud.draw(t, { opacity: this.hudOff ? 0 : post.hud, frame: post.frame, readout: post.pdoom, paper: post.paper, pdoomOverride: post.pdoomText, corruption: post.hudCorruption });
+    const hudTex = this.hud.draw(t, { opacity: this.hudOff ? 0 : post.hud, frame: post.frame, readout: post.readout, paper: post.paper, readoutText: post.readoutText, corruption: post.hudCorruption });
     this.post.render(r, outTex, hudTex, this.finalRT, post, t);
     this.lastPost = post;
     if (toScreen) {

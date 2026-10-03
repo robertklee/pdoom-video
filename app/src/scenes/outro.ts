@@ -10,7 +10,7 @@ import { LIN, rgba } from '../engine/palette';
 import { F, font, layout, textPathCommands } from '../engine/type';
 import { clamp, ease, hash, lerp, mulberry32, prog, smoothstep, TAU } from '../engine/util';
 import { sparkHead, sparkParticles } from './_motifs';
-import { drawReadout } from '../engine/hud';
+import { drawReadout } from './_pdoom';
 import OpenScene from './open';
 
 const PLATES = [

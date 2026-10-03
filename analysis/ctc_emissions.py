@@ -22,7 +22,7 @@ def compute(name, chunk_s=20.0, ctx_s=3.0, device=None, source="vocals"):
         model = bundle.get_model(with_star=False)
     else:
         model = bundle.get_model()
-    device = device or ("mps" if torch.backends.mps.is_available() else "cpu")
+    device = device or ("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
     model = model.to(device).eval()
     y, sr = common.load_vocal_source(source, sr=16000)
     y = y / (np.abs(y).max() + 1e-9)

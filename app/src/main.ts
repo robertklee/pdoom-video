@@ -1,7 +1,8 @@
 // Entry: preview player (default) or export mode (?export=1, driven by scripts/render.ts).
 import { Engine, type AdaptiveSampling } from './engine/engine';
 import { PW, PH, SCALE } from './engine/gl';
-import { makeTimeline } from './timeline';
+import { project } from './project';
+import { SONG } from './song';
 
 const params = new URLSearchParams(location.search);
 const EXPORT = params.has('export');
@@ -13,10 +14,12 @@ const canvas = document.getElementById('c') as HTMLCanvasElement;
 canvas.width = PW;
 canvas.height = PH;
 
-const engine = new Engine(canvas, makeTimeline);
+document.title = SONG.title;
+const engine = new Engine(canvas, project);
 
 declare global {
-  interface Window { __pdoom: any }
+  /** The export API (scripts/render.ts drives it), or { error } if boot failed. */
+  interface Window { __export: any }
 }
 
 let TIMELINE: typeof engine.timeline = [];
@@ -32,7 +35,7 @@ async function boot() {
 // ------------------------------------------------------------------ export API
 function setupExport() {
   document.body.classList.add('export');
-  window.__pdoom = {
+  window.__export = {
     engine,
     duration: engine.duration,
     errors: engine.errors,
@@ -90,12 +93,12 @@ function setupExport() {
       return used;
     },
   };
-  window.__pdoom.ready = true;
+  window.__export.ready = true;
 }
 
 // ------------------------------------------------------------------ preview player
 function setupPlayer() {
-  const audio = new Audio('audio/pdoom.mp3');
+  const audio = new Audio(SONG.audio);
   audio.preload = 'auto';
   const ui = document.getElementById('ui')!;
   const scrub = document.getElementById('scrub') as HTMLInputElement;
@@ -168,8 +171,9 @@ function setupPlayer() {
   if (import.meta.hot) {
     import.meta.hot.on('vite:afterUpdate', (payload: any) => {
       for (const u of payload.updates ?? []) {
-        const m = /scenes\/([\w-]+)\.ts/.exec(u.path ?? '');
-        if (m) for (const e of TIMELINE) if (e.id === m[1] || (e as any).file === m[1]) engine.reload(e.id);
+        const m = /\/(scenes|templates)\/([\w-]+)\.ts/.exec(u.path ?? '');
+        const file = m && (m[1] === 'scenes' ? m[2] : `${m[1]}/${m[2]}`);
+        if (file) for (const e of TIMELINE) if (e.id === file || e.file === file) engine.reload(e.id);
       }
     });
   }
@@ -178,5 +182,5 @@ function setupPlayer() {
 boot().catch((e) => {
   console.error(e);
   document.body.insertAdjacentHTML('beforeend', `<pre style="color:#f55;position:fixed;top:0;left:0">${String(e?.stack ?? e)}</pre>`);
-  window.__pdoom = { error: String(e?.stack ?? e) };
+  window.__export = { error: String(e?.stack ?? e) };
 });

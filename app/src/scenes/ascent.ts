@@ -16,7 +16,7 @@ import { makeEyePass, EYE } from './ascent-eye';
 import { makeNotePass, makeCompPass, makeCandles, DEC, MOON, NOTE, type Candle } from './ascent-note';
 import { sparkHead, sparkParticles } from './_motifs';
 import { makeOdoPass, makeDigitAtlas, drumX, ODO } from './ascent-odo';
-import { PDoom, formatPDoom } from '../engine/hud';
+import { PDoom, formatPDoom } from './_pdoom';
 
 type Mv = 'A' | 'B' | 'C' | 'D';
 

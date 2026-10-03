@@ -21,7 +21,7 @@ import { FSPass, Layer2D, W, H } from '../engine/gl';
 import { rgba } from '../engine/palette';
 import { F, font, layout, measure } from '../engine/type';
 import { Lyrics, type Line, type Word } from '../engine/lyrics';
-import { PDoom, formatPDoom, drawReadout } from '../engine/hud';
+import { PDoom, formatPDoom, drawReadout } from './_pdoom';
 import { clamp, lerp, ease, prog, springStep, pulse, hash, TAU, frameIdx } from '../engine/util';
 import { GBUF_FRAG, COMP_FRAG, NK, NT, NE } from './shoggoth-glsl';
 import { SHROOMS, SHROOMS_FAM, shroomsAffine } from './room-shrooms';

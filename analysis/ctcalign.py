@@ -12,21 +12,31 @@
   manually verified hard spots.
 """
 import common  # noqa: F401
+import functools
+
 import numpy as np
 import numba
 import torchaudio
 from pron import pron
 
 FRAME = 0.02  # s per emission frame
-N_FRAMES = 7833
 ALPHA = ["-"] + list("abcdefghijklmnopqrstuvwxyz'")
 AIDX = {c: i for i, c in enumerate(ALPHA)}
 
 
+@functools.cache
+def n_frames():
+    """Emission frames covering the song (the stems' lengths differ by a frame
+    or so: every emission is padded / cut to this)."""
+    return int(np.ceil(common.duration() / FRAME))
+
+
 def _common_logp(model):
     em = np.load(common.WORK / f"emission_{model}.npy").astype(np.float64)
-    if len(em) < N_FRAMES:
-        em = np.concatenate([em, np.repeat(em[-1:], N_FRAMES - len(em), 0)])
+    N = n_frames()
+    em = em[:N]
+    if len(em) < N:
+        em = np.concatenate([em, np.repeat(em[-1:], N - len(em), 0)])
     if model.startswith("mms"):
         labs = list(torchaudio.pipelines.MMS_FA.get_labels(star=None))
     else:

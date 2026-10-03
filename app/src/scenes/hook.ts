@@ -14,7 +14,7 @@ import { Scene, type Frame, type PostOverrides } from '../engine/scene';
 import { FSPass, Layer2D, W, H } from '../engine/gl';
 import { HEX, rgba } from '../engine/palette';
 import { F, font, measure, layout, plain, type TextLayout } from '../engine/type';
-import { PDoom, formatPDoom } from '../engine/hud';
+import { PDoom, formatPDoom } from './_pdoom';
 import type { Word } from '../engine/lyrics';
 import { clamp, ease, hash, lerp, noise1, prog, pulse, smoothstep, frameIdx } from '../engine/util';
 import { sparkHead2D } from './_motifs';

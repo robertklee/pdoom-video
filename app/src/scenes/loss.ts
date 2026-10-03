@@ -15,7 +15,7 @@ import { F, font, layout, plain, type TextLayout } from '../engine/type';
 import { Lyrics, norm, type Line, type Word } from '../engine/lyrics';
 import { GLSL_COMMON } from '../engine/glsl/common';
 import { sparkHead, sparkParticles } from './_motifs';
-import { PDoom, formatPDoom } from '../engine/hud';
+import { PDoom, formatPDoom } from './_pdoom';
 import { clamp, lerp, ease, prog, pulse, noise1, smoothstep, TAU } from '../engine/util';
 
 // ------------------------------------------------------------------ terrain (JS + GLSL twins)

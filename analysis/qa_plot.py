@@ -67,13 +67,15 @@ def plot(t0, t1, tracks, out, title="", marks=None):
             for a_ in axes[:2]:
                 a_.axvline(s, color=c, lw=0.9, alpha=0.8, ls="-" if k == 0 else "--")
         ax3.text(t0, yk - 0.3, name, fontsize=8, color=c)
-    # 8th-note grid (132 BPM) -- beats solid, off-beats dotted
-    P, OFF = 60 / 132, 0.708
-    n0, n1 = int(np.floor((t0 - OFF) / P * 2)), int(np.ceil((t1 - OFF) / P * 2))
-    for n in range(n0, n1 + 1):
-        tb = OFF + n * P / 2
-        if t0 <= tb <= t1:
-            axes[2].axvline(tb, color="gray", lw=1.0 if n % 2 == 0 else 0.5, ls="-" if n % 2 == 0 else ":", alpha=0.7)
+    # 8th-note grid of the analysed beat grid -- beats solid, off-beats dotted
+    grid = common.beat_grid()
+    if grid:
+        P, OFF = grid
+        n0, n1 = int(np.floor((t0 - OFF) / P * 2)), int(np.ceil((t1 - OFF) / P * 2))
+        for n in range(n0, n1 + 1):
+            tb = OFF + n * P / 2
+            if t0 <= tb <= t1:
+                axes[2].axvline(tb, color="gray", lw=1.0 if n % 2 == 0 else 0.5, ls="-" if n % 2 == 0 else ":", alpha=0.7)
     if marks:
         for m in marks:
             for a_ in axes:

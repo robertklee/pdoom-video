@@ -21,7 +21,7 @@ import { F, font, layout, measure, textPoints, type TextLayout } from '../engine
 import { norm, type Line, type Word } from '../engine/lyrics';
 import { strokeText, type StrokeText } from '../engine/stroke';
 import { sparkHead, sparkParticles } from './_motifs';
-import { PDoom, formatPDoom } from '../engine/hud';
+import { PDoom, formatPDoom } from './_pdoom';
 import { clamp, lerp, ease, prog, pulse, hash, noise1, smoothstep, springStep, TAU, type V2, polylineLengths, pointAtLength } from '../engine/util';
 import { LensPass, MipLayer } from './spacetime-lens';
 

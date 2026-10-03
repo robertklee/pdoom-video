@@ -13,7 +13,7 @@ import { Lyrics, type Word } from '../engine/lyrics';
 import { clamp, ease, hash, lerp, prog, pulse, smoothstep, springStep, TAU, frameIdx } from '../engine/util';
 import { sparkHead, sparkParticles } from './_motifs';
 import { TextPlane, beatsIn, lin, strokeLines, type RGB } from './stack-kit';
-import { PDoom, formatPDoom } from '../engine/hud';
+import { PDoom, formatPDoom } from './_pdoom';
 
 // ---- block geometry (world units) ----
 const HX = 6, HY = 3, HZ = 1.4; // half extents of a block

@@ -19,7 +19,7 @@ import { GpuFloor } from './dense-gpu';
 import { Askew, ROLL_IN } from './dense-askew';
 import { Press } from './dense-press';
 import { beatsIn, cutBeat } from './stack-kit';
-import { PDoom, formatPDoom } from '../engine/hud';
+import { PDoom, formatPDoom } from './_pdoom';
 
 export default class Dense extends Scene {
   gpu!: GpuFloor;

@@ -1,13 +1,20 @@
-"""Shared paths / cache setup for the pdoom analysis scripts.
+"""Shared paths / cache setup for the analysis scripts.
 
 Import this module FIRST (before torch / huggingface / mlx imports) so that all
 model downloads land in analysis/.cache/.
+
+The song (audio file, lyric source) comes from the repo-root song.json, which
+the app and the renderer read too; the hand-tuned settings for it are in
+song.py.
 """
+import json
 import os
 from pathlib import Path
 
+import song
+
 ROOT = Path(__file__).resolve().parent          # analysis/
-PROJECT = ROOT.parent                            # pdoom/
+PROJECT = ROOT.parent                            # repo root
 CACHE = ROOT / ".cache"
 for var, sub in [("TORCH_HOME", "torch"), ("HF_HOME", "hf"), ("HF_HUB_CACHE", "hf/hub"),
                  ("XDG_CACHE_HOME", "xdg"), ("HUGGINGFACE_HUB_CACHE", "hf/hub"),
@@ -16,9 +23,11 @@ for var, sub in [("TORCH_HOME", "torch"), ("HF_HOME", "hf"), ("HF_HUB_CACHE", "h
     os.environ.setdefault(var, str(CACHE / sub))
     (CACHE / sub).mkdir(parents=True, exist_ok=True)
 
-AUDIO = PROJECT / "audio" / "pdoom.mp3"
-STEMS = ROOT / "stems" / "htdemucs_ft" / "pdoom"
-LYRICS_SRC = PROJECT / "lyrics" / "lyrics.src.js"
+CONFIG = json.loads((PROJECT / "song.json").read_text(encoding="utf-8"))
+AUDIO = PROJECT / CONFIG["audio"]
+# Demucs writes <out>/<model>/<audio file name without extension>/<stem>.wav
+STEMS = ROOT / "stems" / "htdemucs_ft" / AUDIO.stem
+LYRICS_SRC = PROJECT / CONFIG["lyrics"]
 DATA = PROJECT / "data"
 QA = ROOT / "qa"
 WORK = ROOT / "work"          # intermediate results (whisper json, alignments)
@@ -35,12 +44,11 @@ def load_lyrics_src():
     return [tuple(x) for x in json.loads(body)]
 
 
-# The Demucs stems were rendered from an mp3 decode that did NOT trim the LAME
-# encoder delay (1105 samples @ 48 kHz = 23.0 ms). The gapless decode of the mp3
-# (ffmpeg / libsndfile / browsers) is our time reference, so stems are shifted
-# earlier by 1015 samples @ 44.1 kHz (measured by cross-correlation, constant
-# over the whole song).
-STEM_OFFSET_SAMPLES = 1015
+# The gapless decode of the song (ffmpeg / libsndfile / browsers) is the time
+# reference. Demucs stems can run late by the encoder delay it did not trim:
+# they are shifted earlier by song.STEM_OFFSET_SAMPLES @ 44.1 kHz (measure it
+# with stem_offset.py).
+STEM_OFFSET_SAMPLES = song.STEM_OFFSET_SAMPLES
 STEM_OFFSET_SEC = STEM_OFFSET_SAMPLES / 44100
 
 
@@ -50,7 +58,10 @@ def load_stem(name, sr=None, mono=True):
     import numpy as np
     y, s = sf.read(STEMS / f"{name}.wav", dtype="float32", always_2d=True)
     assert s == 44100
-    y = y[STEM_OFFSET_SAMPLES:]
+    if STEM_OFFSET_SAMPLES >= 0:
+        y = y[STEM_OFFSET_SAMPLES:]
+    else:  # stems that run early
+        y = np.pad(y, ((-STEM_OFFSET_SAMPLES, 0), (0, 0)))
     y = y.mean(axis=1) if mono else y.T
     if sr and sr != s:
         import soxr
@@ -86,6 +97,22 @@ def load_vocal_source(name, sr=None):
         y, s = load_stem("vocals", sr=sr, mono=False)
         return y[0 if name == "vocL" else 1], s
     return load_stem("vocals", sr=sr)
+
+
+def beat_grid():
+    """(beat period, first beat) of the analysed grid in data/audio.json, or
+    None before analyze.py has run (QA plots then draw no beat grid)."""
+    p = DATA / "audio.json"
+    if not p.exists():
+        return None
+    a = json.loads(p.read_text())
+    return a["beat_period"], a["beats"][0]
+
+
+def duration():
+    """Length (s) of the gapless decode of the song."""
+    import soundfile as sf
+    return sf.info(str(AUDIO)).duration
 
 
 def load_mix(sr=44100, mono=True):

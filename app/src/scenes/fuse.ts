@@ -19,7 +19,7 @@ import { F, font, layout, type TextLayout } from '../engine/type';
 import { GLSL_COMMON } from '../engine/glsl/common';
 import { clamp, ease, lerp, prog, hash, noise1, pulse, TAU, smoothstep, polylineLengths, pointAtLength, mulberry32, type V2, frameIdx } from '../engine/util';
 import { sparkHead, sparkParticles } from './_motifs';
-import { PDoom, formatPDoom } from '../engine/hud';
+import { PDoom, formatPDoom } from './_pdoom';
 import { bluesPitch } from './fuse-pitch';
 
 type Ctx2 = CanvasRenderingContext2D;

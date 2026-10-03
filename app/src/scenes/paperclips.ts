@@ -14,7 +14,7 @@ import { F, font, layout, plain } from '../engine/type';
 import { Lyrics, type Line } from '../engine/lyrics';
 import { clamp, ease, lerp, prog, keys, hash, noise1, smoothstep, type Key } from '../engine/util';
 import { sparkHead, sparkParticles } from './_motifs';
-import { PDoom, formatPDoom } from '../engine/hud';
+import { PDoom, formatPDoom } from './_pdoom';
 import { S_END, clipPath, CLIP } from './paperclips-geo';
 import { FRAG_TOP, FRAG_MARCH, MAX_ITEMS } from './paperclips-glsl';
 

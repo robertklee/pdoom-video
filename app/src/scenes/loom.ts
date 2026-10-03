@@ -23,7 +23,7 @@ import { sparkHead, sparkHead2D, sparkParticles } from './_motifs';
 import { FRAG_DROSTE } from './loom-glsl';
 import { LoomTree, Y0, ROOT_X, type P2 } from './loom-tree';
 import { IlyaRoom } from './ilya-room';
-import { PDoom, drawReadout } from '../engine/hud';
+import { PDoom, drawReadout } from './_pdoom';
 
 const ATLAS_ROWS = 24;
 // the version tag stamped in each nested frame (plate px): top-left inside the border

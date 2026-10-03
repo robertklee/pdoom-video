@@ -24,7 +24,7 @@ import { clamp, ease, keys, lerp, prog, pulse } from '../engine/util';
 import { sparkHead, sparkParticles } from './_motifs';
 import { MAP, FACE, EYE_R, routeAt, ROUTE_LA, ROUTE_LC, ROUTE_EYE, drawMap, makeMarksTexture, canvasTex, makeMapPass, WorldLayer } from './leftturn-map';
 import { GANTT, Schedule } from './leftturn-gantt';
-import { PDoom, formatPDoom } from '../engine/hud';
+import { PDoom, formatPDoom } from './_pdoom';
 
 function wordOf(l: Line, s: string): Word {
   const q = norm(s);

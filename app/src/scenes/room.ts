@@ -25,7 +25,7 @@ import { F, font, layout, ot } from '../engine/type';
 import { Lyrics, type Line, type Word } from '../engine/lyrics';
 import { clamp, lerp, ease, prog, mulberry32, springStep, pulse, TAU, smoothstep, hash, noise1 } from '../engine/util';
 import { sparkParticles } from './_motifs';
-import { PDoom, formatPDoom } from '../engine/hud';
+import { PDoom, formatPDoom } from './_pdoom';
 import { RW, RH, RD, ZF, DESK, SLOT, BOARD, DOOR, KIND, buildRoom, buildMycelium, type Segs, type Book, type Shroom } from './room-geo';
 import { SHROOMS_FAM, shroomsAffine } from './room-shrooms';
 
