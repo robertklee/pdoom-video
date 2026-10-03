@@ -1,0 +1,745 @@
+{
+  "lang": "en",
+  "source": "draft",
+  "lines": [
+    {
+      "id": "problem.1",
+      "i": 0,
+      "text": "Your team's knowledge is everywhere: in docs, chats, tickets and email.",
+      "start": 2.182,
+      "end": 6.81,
+      "words": [
+        {
+          "w": "Your",
+          "start": 2.182,
+          "end": 2.42,
+          "conf": 0.2
+        },
+        {
+          "w": "team's",
+          "start": 2.42,
+          "end": 2.658,
+          "conf": 0.2
+        },
+        {
+          "w": "knowledge",
+          "start": 2.658,
+          "end": 3.134,
+          "conf": 0.2
+        },
+        {
+          "w": "is",
+          "start": 3.134,
+          "end": 3.372,
+          "conf": 0.2
+        },
+        {
+          "w": "everywhere:",
+          "start": 3.372,
+          "end": 4.325,
+          "conf": 0.2
+        },
+        {
+          "w": "in",
+          "start": 4.585,
+          "end": 4.823,
+          "conf": 0.2
+        },
+        {
+          "w": "docs,",
+          "start": 4.823,
+          "end": 5.061,
+          "conf": 0.2,
+          "key": true
+        },
+        {
+          "w": "chats,",
+          "start": 5.221,
+          "end": 5.459,
+          "conf": 0.2,
+          "key": true
+        },
+        {
+          "w": "tickets",
+          "start": 5.619,
+          "end": 6.095,
+          "conf": 0.2,
+          "key": true
+        },
+        {
+          "w": "and",
+          "start": 6.095,
+          "end": 6.333,
+          "conf": 0.2
+        },
+        {
+          "w": "email.",
+          "start": 6.333,
+          "end": 6.81,
+          "conf": 0.2,
+          "key": true
+        }
+      ]
+    },
+    {
+      "id": "problem.2",
+      "i": 1,
+      "text": "So when you search, you get nothing. Or everything.",
+      "start": 8.727,
+      "end": 12.362,
+      "words": [
+        {
+          "w": "So",
+          "start": 8.727,
+          "end": 8.965,
+          "conf": 0.2
+        },
+        {
+          "w": "when",
+          "start": 8.965,
+          "end": 9.203,
+          "conf": 0.2
+        },
+        {
+          "w": "you",
+          "start": 9.203,
+          "end": 9.441,
+          "conf": 0.2
+        },
+        {
+          "w": "search,",
+          "start": 9.441,
+          "end": 9.679,
+          "conf": 0.2
+        },
+        {
+          "w": "you",
+          "start": 9.839,
+          "end": 10.077,
+          "conf": 0.2
+        },
+        {
+          "w": "get",
+          "start": 10.077,
+          "end": 10.316,
+          "conf": 0.2
+        },
+        {
+          "w": "nothing.",
+          "start": 10.316,
+          "end": 10.792,
+          "conf": 0.2
+        },
+        {
+          "w": "Or",
+          "start": 11.172,
+          "end": 11.41,
+          "conf": 0.2
+        },
+        {
+          "w": "everything.",
+          "start": 11.41,
+          "end": 12.362,
+          "conf": 0.2
+        }
+      ]
+    },
+    {
+      "id": "query.1",
+      "i": 2,
+      "text": "Now just ask the way you'd ask a colleague:",
+      "start": 13.09,
+      "end": 15.471,
+      "words": [
+        {
+          "w": "Now",
+          "start": 13.09,
+          "end": 13.328,
+          "conf": 0.2
+        },
+        {
+          "w": "just",
+          "start": 13.328,
+          "end": 13.566,
+          "conf": 0.2
+        },
+        {
+          "w": "ask",
+          "start": 13.566,
+          "end": 13.804,
+          "conf": 0.2
+        },
+        {
+          "w": "the",
+          "start": 13.804,
+          "end": 14.042,
+          "conf": 0.2
+        },
+        {
+          "w": "way",
+          "start": 14.042,
+          "end": 14.28,
+          "conf": 0.2
+        },
+        {
+          "w": "you'd",
+          "start": 14.28,
+          "end": 14.519,
+          "conf": 0.2
+        },
+        {
+          "w": "ask",
+          "start": 14.519,
+          "end": 14.757,
+          "conf": 0.2
+        },
+        {
+          "w": "a",
+          "start": 14.757,
+          "end": 14.995,
+          "conf": 0.2
+        },
+        {
+          "w": "colleague:",
+          "start": 14.995,
+          "end": 15.471,
+          "conf": 0.2
+        }
+      ]
+    },
+    {
+      "id": "query.2",
+      "i": 3,
+      "text": "renewal contracts signed by legal last quarter.",
+      "start": 17.453,
+      "end": 20.548,
+      "words": [
+        {
+          "w": "renewal",
+          "start": 17.453,
+          "end": 18.167,
+          "conf": 0.2,
+          "key": true
+        },
+        {
+          "w": "contracts",
+          "start": 18.167,
+          "end": 18.643,
+          "conf": 0.2,
+          "key": true
+        },
+        {
+          "w": "signed",
+          "start": 18.643,
+          "end": 19.12,
+          "conf": 0.2
+        },
+        {
+          "w": "by",
+          "start": 19.12,
+          "end": 19.358,
+          "conf": 0.2
+        },
+        {
+          "w": "legal",
+          "start": 19.358,
+          "end": 19.834,
+          "conf": 0.2,
+          "key": true
+        },
+        {
+          "w": "last",
+          "start": 19.834,
+          "end": 20.072,
+          "conf": 0.2
+        },
+        {
+          "w": "quarter.",
+          "start": 20.072,
+          "end": 20.548,
+          "conf": 0.2
+        }
+      ]
+    },
+    {
+      "id": "results.1",
+      "i": 4,
+      "text": "Acme Search reads across every source and ranks what matters first.",
+      "start": 21.815,
+      "end": 25.625,
+      "words": [
+        {
+          "w": "Acme",
+          "start": 21.815,
+          "end": 22.291,
+          "conf": 0.2
+        },
+        {
+          "w": "Search",
+          "start": 22.291,
+          "end": 22.529,
+          "conf": 0.2
+        },
+        {
+          "w": "reads",
+          "start": 22.529,
+          "end": 22.767,
+          "conf": 0.2
+        },
+        {
+          "w": "across",
+          "start": 22.767,
+          "end": 23.244,
+          "conf": 0.2
+        },
+        {
+          "w": "every",
+          "start": 23.244,
+          "end": 23.958,
+          "conf": 0.2
+        },
+        {
+          "w": "source",
+          "start": 23.958,
+          "end": 24.196,
+          "conf": 0.2
+        },
+        {
+          "w": "and",
+          "start": 24.196,
+          "end": 24.434,
+          "conf": 0.2
+        },
+        {
+          "w": "ranks",
+          "start": 24.434,
+          "end": 24.672,
+          "conf": 0.2
+        },
+        {
+          "w": "what",
+          "start": 24.672,
+          "end": 24.91,
+          "conf": 0.2
+        },
+        {
+          "w": "matters",
+          "start": 24.91,
+          "end": 25.386,
+          "conf": 0.2
+        },
+        {
+          "w": "first.",
+          "start": 25.386,
+          "end": 25.625,
+          "conf": 0.2
+        }
+      ]
+    },
+    {
+      "id": "features.filters",
+      "i": 5,
+      "text": "Narrow it down with filters for owner, date and type.",
+      "start": 26.178,
+      "end": 29.433,
+      "words": [
+        {
+          "w": "Narrow",
+          "start": 26.178,
+          "end": 26.654,
+          "conf": 0.2
+        },
+        {
+          "w": "it",
+          "start": 26.654,
+          "end": 26.892,
+          "conf": 0.2
+        },
+        {
+          "w": "down",
+          "start": 26.892,
+          "end": 27.13,
+          "conf": 0.2
+        },
+        {
+          "w": "with",
+          "start": 27.13,
+          "end": 27.368,
+          "conf": 0.2
+        },
+        {
+          "w": "filters",
+          "start": 27.368,
+          "end": 27.845,
+          "conf": 0.2,
+          "key": true
+        },
+        {
+          "w": "for",
+          "start": 27.845,
+          "end": 28.083,
+          "conf": 0.2
+        },
+        {
+          "w": "owner,",
+          "start": 28.083,
+          "end": 28.559,
+          "conf": 0.2
+        },
+        {
+          "w": "date",
+          "start": 28.719,
+          "end": 28.957,
+          "conf": 0.2
+        },
+        {
+          "w": "and",
+          "start": 28.957,
+          "end": 29.195,
+          "conf": 0.2
+        },
+        {
+          "w": "type.",
+          "start": 29.195,
+          "end": 29.433,
+          "conf": 0.2
+        }
+      ]
+    },
+    {
+      "id": "features.semantic",
+      "i": 6,
+      "text": "It understands meaning, not just matching words.",
+      "start": 30.541,
+      "end": 33.32,
+      "words": [
+        {
+          "w": "It",
+          "start": 30.541,
+          "end": 30.779,
+          "conf": 0.2
+        },
+        {
+          "w": "understands",
+          "start": 30.779,
+          "end": 31.493,
+          "conf": 0.2
+        },
+        {
+          "w": "meaning,",
+          "start": 31.493,
+          "end": 31.97,
+          "conf": 0.2,
+          "key": true
+        },
+        {
+          "w": "not",
+          "start": 32.13,
+          "end": 32.368,
+          "conf": 0.2
+        },
+        {
+          "w": "just",
+          "start": 32.368,
+          "end": 32.606,
+          "conf": 0.2
+        },
+        {
+          "w": "matching",
+          "start": 32.606,
+          "end": 33.082,
+          "conf": 0.2
+        },
+        {
+          "w": "words.",
+          "start": 33.082,
+          "end": 33.32,
+          "conf": 0.2
+        }
+      ]
+    },
+    {
+      "id": "features.speed",
+      "i": 7,
+      "text": "And answers arrive in under half a second.",
+      "start": 34.904,
+      "end": 37.761,
+      "words": [
+        {
+          "w": "And",
+          "start": 34.904,
+          "end": 35.142,
+          "conf": 0.2
+        },
+        {
+          "w": "answers",
+          "start": 35.142,
+          "end": 35.618,
+          "conf": 0.2
+        },
+        {
+          "w": "arrive",
+          "start": 35.618,
+          "end": 36.094,
+          "conf": 0.2
+        },
+        {
+          "w": "in",
+          "start": 36.094,
+          "end": 36.333,
+          "conf": 0.2
+        },
+        {
+          "w": "under",
+          "start": 36.333,
+          "end": 36.809,
+          "conf": 0.2
+        },
+        {
+          "w": "half",
+          "start": 36.809,
+          "end": 37.047,
+          "conf": 0.2,
+          "key": true
+        },
+        {
+          "w": "a",
+          "start": 37.047,
+          "end": 37.285,
+          "conf": 0.2,
+          "key": true
+        },
+        {
+          "w": "second.",
+          "start": 37.285,
+          "end": 37.761,
+          "conf": 0.2,
+          "key": true
+        }
+      ]
+    },
+    {
+      "id": "proof.1",
+      "i": 8,
+      "text": "Teams find documents three times faster,",
+      "start": 39.267,
+      "end": 41.648,
+      "words": [
+        {
+          "w": "Teams",
+          "start": 39.267,
+          "end": 39.505,
+          "conf": 0.2
+        },
+        {
+          "w": "find",
+          "start": 39.505,
+          "end": 39.743,
+          "conf": 0.2
+        },
+        {
+          "w": "documents",
+          "start": 39.743,
+          "end": 40.457,
+          "conf": 0.2
+        },
+        {
+          "w": "three",
+          "start": 40.457,
+          "end": 40.696,
+          "conf": 0.2,
+          "key": true
+        },
+        {
+          "w": "times",
+          "start": 40.696,
+          "end": 41.172,
+          "conf": 0.2,
+          "key": true
+        },
+        {
+          "w": "faster,",
+          "start": 41.172,
+          "end": 41.648,
+          "conf": 0.2,
+          "key": true
+        }
+      ]
+    },
+    {
+      "id": "proof.2",
+      "i": 9,
+      "text": "and save five hours every week.",
+      "start": 41.998,
+      "end": 43.903,
+      "words": [
+        {
+          "w": "and",
+          "start": 41.998,
+          "end": 42.236,
+          "conf": 0.2
+        },
+        {
+          "w": "save",
+          "start": 42.236,
+          "end": 42.474,
+          "conf": 0.2
+        },
+        {
+          "w": "five",
+          "start": 42.474,
+          "end": 42.712,
+          "conf": 0.2,
+          "key": true
+        },
+        {
+          "w": "hours",
+          "start": 42.712,
+          "end": 42.95,
+          "conf": 0.2,
+          "key": true
+        },
+        {
+          "w": "every",
+          "start": 42.95,
+          "end": 43.665,
+          "conf": 0.2
+        },
+        {
+          "w": "week.",
+          "start": 43.665,
+          "end": 43.903,
+          "conf": 0.2
+        }
+      ]
+    },
+    {
+      "id": "end.1",
+      "i": 10,
+      "text": "Acme Search. Ask anything. Find it first.",
+      "start": 45.811,
+      "end": 48.952,
+      "words": [
+        {
+          "w": "Acme",
+          "start": 45.811,
+          "end": 46.287,
+          "conf": 0.2,
+          "key": true
+        },
+        {
+          "w": "Search.",
+          "start": 46.287,
+          "end": 46.525,
+          "conf": 0.2,
+          "key": true
+        },
+        {
+          "w": "Ask",
+          "start": 46.905,
+          "end": 47.143,
+          "conf": 0.2
+        },
+        {
+          "w": "anything.",
+          "start": 47.143,
+          "end": 47.858,
+          "conf": 0.2
+        },
+        {
+          "w": "Find",
+          "start": 48.238,
+          "end": 48.476,
+          "conf": 0.2
+        },
+        {
+          "w": "it",
+          "start": 48.476,
+          "end": 48.714,
+          "conf": 0.2
+        },
+        {
+          "w": "first.",
+          "start": 48.714,
+          "end": 48.952,
+          "conf": 0.2
+        }
+      ]
+    },
+    {
+      "id": "end.2",
+      "i": 11,
+      "text": "Try it today at acme.example/search",
+      "start": 50.174,
+      "end": 53.269,
+      "words": [
+        {
+          "w": "Try",
+          "start": 50.174,
+          "end": 50.412,
+          "conf": 0.2
+        },
+        {
+          "w": "it",
+          "start": 50.412,
+          "end": 50.65,
+          "conf": 0.2
+        },
+        {
+          "w": "today",
+          "start": 50.65,
+          "end": 51.126,
+          "conf": 0.2
+        },
+        {
+          "w": "at",
+          "start": 51.126,
+          "end": 51.364,
+          "conf": 0.2
+        },
+        {
+          "w": "acme.example/search",
+          "start": 51.364,
+          "end": 53.269,
+          "conf": 0.2
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "frag.doc": "Q3_renewals_FINAL_v7.docx",
+    "frag.chat": "#legal: who has the signed copy?",
+    "frag.ticket": "LEGAL-2231 · Contract renewal",
+    "frag.mail": "Re: Re: Fwd: renewal terms",
+    "frag.sheet": "renewals_tracker (2).xlsx",
+    "frag.wiki": "Wiki › Legal › Templates › Old",
+    "search.none": "No results",
+    "search.many": "48,213 results",
+    "search.bad": "renewal",
+    "placeholder": "Ask anything…",
+    "query": "renewal contracts signed by legal last quarter",
+    "card.1.title": "Halden Logistics: renewal, signed",
+    "card.1.meta": "Docs · Legal · Sep 12",
+    "card.2.title": "Brightwater Health MSA renewal",
+    "card.2.meta": "Email · Legal · Aug 28",
+    "card.3.title": "Q3 renewals tracker",
+    "card.3.meta": "Sheets · Finance · Sep 30",
+    "card.4.title": "Corvid Labs order form",
+    "card.4.meta": "Tickets · Legal · Jul 19",
+    "chip.owner": "Owner: Legal",
+    "chip.date": "Last quarter",
+    "chip.type": "Type: Contract",
+    "sem.query": "renewal",
+    "sem.1": "extension",
+    "sem.2": "term continuation",
+    "sem.3": "re-signing",
+    "speed.label": "median time to answer",
+    "proof.1.label": "faster to find documents",
+    "proof.2.label": "saved per person, per week",
+    "proof.note": "Pilot study, 412 users, 2026. Illustrative UI.",
+    "tagline": "Ask anything. Find it first.",
+    "cta": "Try it today",
+    "url": "acme.example/search"
+  },
+  "notes": "DRAFT timings estimated from the script (4.2 syllables/s, punctuation pauses, bar pins on the music analysis); replace with TTS word marks or a forced alignment of the recorded voice before locking the cut."
+}

@@ -9,6 +9,10 @@ out/
 analysis/.venv/
 analysis/.cache/
 analysis/__pycache__/
+analysis/profiles/__pycache__/
 analysis/stems/
 analysis/work/
 analysis/qa/
+
+# project audio: licensed music beds, voice recordings / TTS renders and mixes (not redistributable)
+projects/*/audio/

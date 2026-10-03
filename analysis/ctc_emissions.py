@@ -1,8 +1,13 @@
-"""Compute frame-wise CTC log-probabilities (20 ms frames) for the vocal stem.
+"""Compute frame-wise CTC log-probabilities (20 ms frames) for the vocal stem
+(or the project's clean voice track).
 
 Two acoustic models give two independent alignments:
   mms   : torchaudio MMS_FA (multilingual, romanized chars, trained for alignment)
   lv60k : torchaudio WAV2VEC2_ASR_LARGE_LV60K_960H (English chars)
+The profile's CTC_MODELS picks the models (English-only lv60k is skipped for
+other languages) and EMISSION_SOURCES the default sources.
+
+Run:  uv run python ctc_emissions.py [--project <id> --lang <code>] [source ...]
 Emissions are computed on overlapping chunks with context and stitched, then
 cached to work/emission_<name>.npy (shape [frames, vocab]).
 """
@@ -51,7 +56,7 @@ def compute(name, chunk_s=20.0, ctx_s=3.0, device=None, source="vocals"):
 
 
 if __name__ == "__main__":
-    srcs = sys.argv[1:] or ["vocals", "lead", "vocL", "vocR"]
+    srcs = sys.argv[1:] or list(common.PROFILE.EMISSION_SOURCES)
     for src in srcs:
-        for n in ("mms", "lv60k"):
+        for n in common.PROFILE.CTC_MODELS:
             compute(n, source=src)

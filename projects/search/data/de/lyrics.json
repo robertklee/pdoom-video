@@ -1,0 +1,700 @@
+{
+  "lang": "de",
+  "source": "draft",
+  "lines": [
+    {
+      "id": "problem.1",
+      "i": 0,
+      "text": "Das Wissen deines Teams ist überall: in Dokumenten, Chats, Tickets und E-Mails.",
+      "start": 2.182,
+      "end": 7.327,
+      "words": [
+        {
+          "w": "Das",
+          "start": 2.182,
+          "end": 2.399,
+          "conf": 0.2
+        },
+        {
+          "w": "Wissen",
+          "start": 2.399,
+          "end": 2.834,
+          "conf": 0.2
+        },
+        {
+          "w": "deines",
+          "start": 2.834,
+          "end": 3.269,
+          "conf": 0.2
+        },
+        {
+          "w": "Teams",
+          "start": 3.269,
+          "end": 3.486,
+          "conf": 0.2
+        },
+        {
+          "w": "ist",
+          "start": 3.486,
+          "end": 3.704,
+          "conf": 0.2
+        },
+        {
+          "w": "überall:",
+          "start": 3.704,
+          "end": 4.356,
+          "conf": 0.2
+        },
+        {
+          "w": "in",
+          "start": 4.616,
+          "end": 4.833,
+          "conf": 0.2
+        },
+        {
+          "w": "Dokumenten,",
+          "start": 4.833,
+          "end": 5.703,
+          "conf": 0.2,
+          "key": true
+        },
+        {
+          "w": "Chats,",
+          "start": 5.863,
+          "end": 6.08,
+          "conf": 0.2,
+          "key": true
+        },
+        {
+          "w": "Tickets",
+          "start": 6.24,
+          "end": 6.675,
+          "conf": 0.2,
+          "key": true
+        },
+        {
+          "w": "und",
+          "start": 6.675,
+          "end": 6.892,
+          "conf": 0.2
+        },
+        {
+          "w": "E-Mails.",
+          "start": 6.892,
+          "end": 7.327,
+          "conf": 0.2,
+          "key": true
+        }
+      ]
+    },
+    {
+      "id": "problem.2",
+      "i": 1,
+      "text": "Du suchst und findest nichts. Oder alles.",
+      "start": 8.727,
+      "end": 11.281,
+      "words": [
+        {
+          "w": "Du",
+          "start": 8.727,
+          "end": 8.944,
+          "conf": 0.2
+        },
+        {
+          "w": "suchst",
+          "start": 8.944,
+          "end": 9.162,
+          "conf": 0.2
+        },
+        {
+          "w": "und",
+          "start": 9.162,
+          "end": 9.379,
+          "conf": 0.2
+        },
+        {
+          "w": "findest",
+          "start": 9.379,
+          "end": 9.814,
+          "conf": 0.2
+        },
+        {
+          "w": "nichts.",
+          "start": 9.814,
+          "end": 10.031,
+          "conf": 0.2
+        },
+        {
+          "w": "Oder",
+          "start": 10.411,
+          "end": 10.846,
+          "conf": 0.2
+        },
+        {
+          "w": "alles.",
+          "start": 10.846,
+          "end": 11.281,
+          "conf": 0.2
+        }
+      ]
+    },
+    {
+      "id": "query.1",
+      "i": 2,
+      "text": "Jetzt fragst du einfach, wie du im Team fragen würdest:",
+      "start": 13.09,
+      "end": 16.076,
+      "words": [
+        {
+          "w": "Jetzt",
+          "start": 13.09,
+          "end": 13.307,
+          "conf": 0.2
+        },
+        {
+          "w": "fragst",
+          "start": 13.307,
+          "end": 13.525,
+          "conf": 0.2
+        },
+        {
+          "w": "du",
+          "start": 13.525,
+          "end": 13.742,
+          "conf": 0.2
+        },
+        {
+          "w": "einfach,",
+          "start": 13.742,
+          "end": 14.177,
+          "conf": 0.2
+        },
+        {
+          "w": "wie",
+          "start": 14.337,
+          "end": 14.554,
+          "conf": 0.2
+        },
+        {
+          "w": "du",
+          "start": 14.554,
+          "end": 14.772,
+          "conf": 0.2
+        },
+        {
+          "w": "im",
+          "start": 14.772,
+          "end": 14.989,
+          "conf": 0.2
+        },
+        {
+          "w": "Team",
+          "start": 14.989,
+          "end": 15.207,
+          "conf": 0.2
+        },
+        {
+          "w": "fragen",
+          "start": 15.207,
+          "end": 15.641,
+          "conf": 0.2
+        },
+        {
+          "w": "würdest:",
+          "start": 15.641,
+          "end": 16.076,
+          "conf": 0.2
+        }
+      ]
+    },
+    {
+      "id": "query.2",
+      "i": 3,
+      "text": "Verlängerungsverträge der Rechtsabteilung, letztes Quartal.",
+      "start": 17.453,
+      "end": 21.091,
+      "words": [
+        {
+          "w": "Verlängerungsverträge",
+          "start": 17.453,
+          "end": 18.975,
+          "conf": 0.2,
+          "key": true
+        },
+        {
+          "w": "der",
+          "start": 18.975,
+          "end": 19.192,
+          "conf": 0.2
+        },
+        {
+          "w": "Rechtsabteilung,",
+          "start": 19.192,
+          "end": 20.062,
+          "conf": 0.2,
+          "key": true
+        },
+        {
+          "w": "letztes",
+          "start": 20.222,
+          "end": 20.656,
+          "conf": 0.2
+        },
+        {
+          "w": "Quartal.",
+          "start": 20.656,
+          "end": 21.091,
+          "conf": 0.2
+        }
+      ]
+    },
+    {
+      "id": "results.1",
+      "i": 4,
+      "text": "Acme Search liest alle Quellen und zeigt das Wichtigste zuerst.",
+      "start": 21.815,
+      "end": 25.076,
+      "words": [
+        {
+          "w": "Acme",
+          "start": 21.815,
+          "end": 22.25,
+          "conf": 0.2
+        },
+        {
+          "w": "Search",
+          "start": 22.25,
+          "end": 22.467,
+          "conf": 0.2
+        },
+        {
+          "w": "liest",
+          "start": 22.467,
+          "end": 22.685,
+          "conf": 0.2
+        },
+        {
+          "w": "alle",
+          "start": 22.685,
+          "end": 23.119,
+          "conf": 0.2
+        },
+        {
+          "w": "Quellen",
+          "start": 23.119,
+          "end": 23.554,
+          "conf": 0.2
+        },
+        {
+          "w": "und",
+          "start": 23.554,
+          "end": 23.772,
+          "conf": 0.2
+        },
+        {
+          "w": "zeigt",
+          "start": 23.772,
+          "end": 23.989,
+          "conf": 0.2
+        },
+        {
+          "w": "das",
+          "start": 23.989,
+          "end": 24.206,
+          "conf": 0.2
+        },
+        {
+          "w": "Wichtigste",
+          "start": 24.206,
+          "end": 24.858,
+          "conf": 0.2
+        },
+        {
+          "w": "zuerst.",
+          "start": 24.858,
+          "end": 25.076,
+          "conf": 0.2
+        }
+      ]
+    },
+    {
+      "id": "features.filters",
+      "i": 5,
+      "text": "Grenze mit Filtern nach Person, Datum und Typ ein.",
+      "start": 26.178,
+      "end": 29.164,
+      "words": [
+        {
+          "w": "Grenze",
+          "start": 26.178,
+          "end": 26.613,
+          "conf": 0.2
+        },
+        {
+          "w": "mit",
+          "start": 26.613,
+          "end": 26.83,
+          "conf": 0.2
+        },
+        {
+          "w": "Filtern",
+          "start": 26.83,
+          "end": 27.265,
+          "conf": 0.2,
+          "key": true
+        },
+        {
+          "w": "nach",
+          "start": 27.265,
+          "end": 27.482,
+          "conf": 0.2
+        },
+        {
+          "w": "Person,",
+          "start": 27.482,
+          "end": 27.917,
+          "conf": 0.2
+        },
+        {
+          "w": "Datum",
+          "start": 28.077,
+          "end": 28.512,
+          "conf": 0.2
+        },
+        {
+          "w": "und",
+          "start": 28.512,
+          "end": 28.729,
+          "conf": 0.2
+        },
+        {
+          "w": "Typ",
+          "start": 28.729,
+          "end": 28.947,
+          "conf": 0.2
+        },
+        {
+          "w": "ein.",
+          "start": 28.947,
+          "end": 29.164,
+          "conf": 0.2
+        }
+      ]
+    },
+    {
+      "id": "features.semantic",
+      "i": 6,
+      "text": "Es versteht Bedeutung, nicht nur gleiche Wörter.",
+      "start": 30.541,
+      "end": 33.31,
+      "words": [
+        {
+          "w": "Es",
+          "start": 30.541,
+          "end": 30.758,
+          "conf": 0.2
+        },
+        {
+          "w": "versteht",
+          "start": 30.758,
+          "end": 31.193,
+          "conf": 0.2
+        },
+        {
+          "w": "Bedeutung,",
+          "start": 31.193,
+          "end": 31.845,
+          "conf": 0.2,
+          "key": true
+        },
+        {
+          "w": "nicht",
+          "start": 32.005,
+          "end": 32.223,
+          "conf": 0.2
+        },
+        {
+          "w": "nur",
+          "start": 32.223,
+          "end": 32.44,
+          "conf": 0.2
+        },
+        {
+          "w": "gleiche",
+          "start": 32.44,
+          "end": 32.875,
+          "conf": 0.2
+        },
+        {
+          "w": "Wörter.",
+          "start": 32.875,
+          "end": 33.31,
+          "conf": 0.2
+        }
+      ]
+    },
+    {
+      "id": "features.speed",
+      "i": 7,
+      "text": "Und die Antwort kommt in unter einer halben Sekunde.",
+      "start": 34.904,
+      "end": 38.165,
+      "words": [
+        {
+          "w": "Und",
+          "start": 34.904,
+          "end": 35.121,
+          "conf": 0.2
+        },
+        {
+          "w": "die",
+          "start": 35.121,
+          "end": 35.339,
+          "conf": 0.2
+        },
+        {
+          "w": "Antwort",
+          "start": 35.339,
+          "end": 35.774,
+          "conf": 0.2
+        },
+        {
+          "w": "kommt",
+          "start": 35.774,
+          "end": 35.991,
+          "conf": 0.2
+        },
+        {
+          "w": "in",
+          "start": 35.991,
+          "end": 36.208,
+          "conf": 0.2
+        },
+        {
+          "w": "unter",
+          "start": 36.208,
+          "end": 36.643,
+          "conf": 0.2
+        },
+        {
+          "w": "einer",
+          "start": 36.643,
+          "end": 37.078,
+          "conf": 0.2
+        },
+        {
+          "w": "halben",
+          "start": 37.078,
+          "end": 37.513,
+          "conf": 0.2,
+          "key": true
+        },
+        {
+          "w": "Sekunde.",
+          "start": 37.513,
+          "end": 38.165,
+          "conf": 0.2,
+          "key": true
+        }
+      ]
+    },
+    {
+      "id": "proof.1",
+      "i": 8,
+      "text": "Teams finden Dokumente dreimal schneller",
+      "start": 39.267,
+      "end": 41.658,
+      "words": [
+        {
+          "w": "Teams",
+          "start": 39.267,
+          "end": 39.484,
+          "conf": 0.2
+        },
+        {
+          "w": "finden",
+          "start": 39.484,
+          "end": 39.919,
+          "conf": 0.2
+        },
+        {
+          "w": "Dokumente",
+          "start": 39.919,
+          "end": 40.789,
+          "conf": 0.2
+        },
+        {
+          "w": "dreimal",
+          "start": 40.789,
+          "end": 41.224,
+          "conf": 0.2,
+          "key": true
+        },
+        {
+          "w": "schneller",
+          "start": 41.224,
+          "end": 41.658,
+          "conf": 0.2,
+          "key": true
+        }
+      ]
+    },
+    {
+      "id": "proof.2",
+      "i": 9,
+      "text": "und sparen fünf Stunden pro Woche.",
+      "start": 42.008,
+      "end": 43.965,
+      "words": [
+        {
+          "w": "und",
+          "start": 42.008,
+          "end": 42.226,
+          "conf": 0.2
+        },
+        {
+          "w": "sparen",
+          "start": 42.226,
+          "end": 42.66,
+          "conf": 0.2
+        },
+        {
+          "w": "fünf",
+          "start": 42.66,
+          "end": 42.878,
+          "conf": 0.2,
+          "key": true
+        },
+        {
+          "w": "Stunden",
+          "start": 42.878,
+          "end": 43.313,
+          "conf": 0.2,
+          "key": true
+        },
+        {
+          "w": "pro",
+          "start": 43.313,
+          "end": 43.53,
+          "conf": 0.2
+        },
+        {
+          "w": "Woche.",
+          "start": 43.53,
+          "end": 43.965,
+          "conf": 0.2
+        }
+      ]
+    },
+    {
+      "id": "end.1",
+      "i": 10,
+      "text": "Acme Search. Frag einfach. Finde zuerst.",
+      "start": 45.811,
+      "end": 48.528,
+      "words": [
+        {
+          "w": "Acme",
+          "start": 45.811,
+          "end": 46.246,
+          "conf": 0.2,
+          "key": true
+        },
+        {
+          "w": "Search.",
+          "start": 46.246,
+          "end": 46.463,
+          "conf": 0.2,
+          "key": true
+        },
+        {
+          "w": "Frag",
+          "start": 46.843,
+          "end": 47.061,
+          "conf": 0.2
+        },
+        {
+          "w": "einfach.",
+          "start": 47.061,
+          "end": 47.495,
+          "conf": 0.2
+        },
+        {
+          "w": "Finde",
+          "start": 47.875,
+          "end": 48.31,
+          "conf": 0.2
+        },
+        {
+          "w": "zuerst.",
+          "start": 48.31,
+          "end": 48.528,
+          "conf": 0.2
+        }
+      ]
+    },
+    {
+      "id": "end.2",
+      "i": 11,
+      "text": "Jetzt testen: acme.example/search",
+      "start": 50.174,
+      "end": 52.825,
+      "words": [
+        {
+          "w": "Jetzt",
+          "start": 50.174,
+          "end": 50.391,
+          "conf": 0.2
+        },
+        {
+          "w": "testen:",
+          "start": 50.391,
+          "end": 50.826,
+          "conf": 0.2
+        },
+        {
+          "w": "acme.example/search",
+          "start": 51.086,
+          "end": 52.825,
+          "conf": 0.2
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "frag.doc": "Q3_Verlaengerungen_FINAL_v7.docx",
+    "frag.chat": "#recht: Wer hat die unterschriebene Kopie?",
+    "frag.ticket": "LEGAL-2231 · Vertragsverlängerung",
+    "frag.mail": "AW: AW: WG: Verlängerungskonditionen",
+    "frag.sheet": "Verlaengerungen_Tracker (2).xlsx",
+    "frag.wiki": "Wiki › Recht › Vorlagen › Alt",
+    "search.none": "Keine Ergebnisse",
+    "search.many": "48.213 Ergebnisse",
+    "search.bad": "Verlängerung",
+    "placeholder": "Frag einfach…",
+    "query": "Verlängerungsverträge der Rechtsabteilung, letztes Quartal",
+    "card.1.title": "Halden Logistik: Verlängerung, unterschrieben",
+    "card.1.meta": "Dokumente · Recht · 12. Sep.",
+    "card.2.title": "Rahmenvertrag Brightwater Health",
+    "card.2.meta": "E-Mail · Recht · 28. Aug.",
+    "card.3.title": "Tracker Verlängerungen Q3",
+    "card.3.meta": "Tabellen · Finanzen · 30. Sep.",
+    "card.4.title": "Bestellformular Corvid Labs",
+    "card.4.meta": "Tickets · Recht · 19. Juli",
+    "chip.owner": "Verantwortlich: Recht",
+    "chip.date": "Letztes Quartal",
+    "chip.type": "Typ: Vertrag",
+    "sem.query": "Verlängerung",
+    "sem.1": "Verlängerungsoption",
+    "sem.2": "Laufzeitfortsetzung",
+    "sem.3": "Neuunterzeichnung",
+    "speed.label": "Antwortzeit (Median)",
+    "proof.1.label": "schneller Dokumente finden",
+    "proof.2.label": "gespart pro Person und Woche",
+    "proof.note": "Pilotstudie, 412 Nutzer:innen, 2026. UI zur Veranschaulichung.",
+    "tagline": "Frag einfach. Finde zuerst.",
+    "cta": "Jetzt testen",
+    "url": "acme.example/search"
+  },
+  "notes": "DRAFT timings estimated from the script (4.6 syllables/s, punctuation pauses, bar pins on the music analysis); replace with TTS word marks or a forced alignment of the recorded voice before locking the cut."
+}

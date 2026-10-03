@@ -1,4 +1,5 @@
-"""CTC forced alignment of the full lyric text against the vocal stem.
+"""CTC forced alignment of the full lyric text against the vocal stem (or a
+clean voice-over track).
 
 * Emissions: two char-level CTC models (MMS_FA, wav2vec2 LV60K-960h) mapped to
   a common alphabet (blank, a-z, ').  They can be used individually or fused
@@ -18,14 +19,14 @@ import torchaudio
 from pron import pron
 
 FRAME = 0.02  # s per emission frame
-N_FRAMES = 7833
+N_FRAMES = common.PROFILE.N_FRAMES  # pad emissions to the song length (None: as computed)
 ALPHA = ["-"] + list("abcdefghijklmnopqrstuvwxyz'")
 AIDX = {c: i for i, c in enumerate(ALPHA)}
 
 
 def _common_logp(model):
     em = np.load(common.WORK / f"emission_{model}.npy").astype(np.float64)
-    if len(em) < N_FRAMES:
+    if N_FRAMES and len(em) < N_FRAMES:
         em = np.concatenate([em, np.repeat(em[-1:], N_FRAMES - len(em), 0)])
     if model.startswith("mms"):
         labs = list(torchaudio.pipelines.MMS_FA.get_labels(star=None))

@@ -2,38 +2,24 @@
 
 Each display token (lyric line split on spaces) maps to one or more
 pronunciation sub-words made of plain letters (and internal apostrophes).
+Project-specific spellings (acronyms, names, URLs) live in the profile's PRON
+dict; everything else is lower-cased, folded to ASCII letters and split.
 """
 import re
+import unicodedata
 
-PRON = {
-    "AGI": "ay gee i",
-    "P(doom)": "pee doom", "P(doom),": "pee doom",
-    "ChatGPT,": "chat gee pee tee",
-    "FOOM": "foom",
-    "NVDA": "en vee dee ay",
-    "E": "ee",
-    "MLP,": "em el pee",
-    "CDR": "see dee are",
-    "PTO": "pee tee oh",
-    "GPU": "gee pee you",
-    "RLHF": "are el aitch eff",
-    "Killswitch": "kill switch",
-    "Neumann's": "noymans",
-    "shoggoth's": "shoggoths",
-    "Post-Chinchilla,": "post chinchilla",
-    "super-dense": "super dense",
-    "pre-training": "pre training",
-    "self-upgrade": "self upgrade",
-    "'cause": "cause",
-    "Gato,": "gato",
-}
+import common
 
+PRON = common.PROFILE.PRON
 # alternative pronunciations to test (scored by alignment likelihood)
-ALT = {
-    "NVDA": ["en vee dee ay", "envidia", "nvidia"],
-    "Neumann's": ["noymans", "newmans"],
-    "Gato,": ["gato", "gahtoe"],
-}
+ALT = common.PROFILE.PRON_ALT
+
+
+def fold(s: str) -> str:
+    """Strip diacritics (ü -> u, é -> e, ß -> ss), as the romanizing aligner
+    (MMS_FA) expects."""
+    s = s.replace("ß", "ss")
+    return "".join(c for c in unicodedata.normalize("NFKD", s) if not unicodedata.combining(c))
 
 
 def pron(token: str) -> list[str]:
@@ -41,12 +27,12 @@ def pron(token: str) -> list[str]:
         return PRON[token].split()
     w = token.lower()
     w = w.replace("’", "'")
+    w = fold(w)
     w = re.sub(r"[^a-z' ]", " ", w)
     w = w.strip("' ")
     return [p.strip("'") for p in w.split() if p.strip("'")]
 
 
 if __name__ == "__main__":
-    import common
     for _, _, t in common.load_lyrics_src():
         print(t, "->", " | ".join(" ".join(pron(w)) for w in t.split(" ")))
