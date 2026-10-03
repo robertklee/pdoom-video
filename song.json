@@ -1,0 +1,10 @@
+{
+  "id": "pdoom",
+  "title": "I'm Upping My P(doom)",
+  "audio": "audio/pdoom.mp3",
+  "lyricsSource": "lyrics/lyrics.src.js",
+  "lyrics": "data/lyrics.json",
+  "audioData": "data/audio.json",
+  "timeline": "pdoom",
+  "analysis": "pdoom"
+}

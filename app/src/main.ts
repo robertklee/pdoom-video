@@ -2,6 +2,7 @@
 import { Engine, type AdaptiveSampling } from './engine/engine';
 import { PW, PH, SCALE } from './engine/gl';
 import { makeTimeline } from './timeline';
+import { SONG } from './song';
 
 const params = new URLSearchParams(location.search);
 const EXPORT = params.has('export');
@@ -16,12 +17,13 @@ canvas.height = PH;
 const engine = new Engine(canvas, makeTimeline);
 
 declare global {
-  interface Window { __pdoom: any }
+  interface Window { __video: any }
 }
 
 let TIMELINE: typeof engine.timeline = [];
 
 async function boot() {
+  document.title = SONG.title;
   const onlySet = ONLY ? new Set(ONLY.split(',')) : null;
   await engine.init(onlySet ? (e) => onlySet.has(e.id) : undefined);
   TIMELINE = engine.timeline;
@@ -32,8 +34,10 @@ async function boot() {
 // ------------------------------------------------------------------ export API
 function setupExport() {
   document.body.classList.add('export');
-  window.__pdoom = {
+  window.__video = {
     engine,
+    /** Song id (the renderer checks it matches the SONG it was started for). */
+    song: SONG.id,
     duration: engine.duration,
     errors: engine.errors,
     /** Output size in px (1920x1080 times scale); stream() sends frames of width*height*4 bytes. */
@@ -90,12 +94,12 @@ function setupExport() {
       return used;
     },
   };
-  window.__pdoom.ready = true;
+  window.__video.ready = true;
 }
 
 // ------------------------------------------------------------------ preview player
 function setupPlayer() {
-  const audio = new Audio('audio/pdoom.mp3');
+  const audio = new Audio(SONG.audio);
   audio.preload = 'auto';
   const ui = document.getElementById('ui')!;
   const scrub = document.getElementById('scrub') as HTMLInputElement;
@@ -178,5 +182,5 @@ function setupPlayer() {
 boot().catch((e) => {
   console.error(e);
   document.body.insertAdjacentHTML('beforeend', `<pre style="color:#f55;position:fixed;top:0;left:0">${String(e?.stack ?? e)}</pre>`);
-  window.__pdoom = { error: String(e?.stack ?? e) };
+  window.__video = { error: String(e?.stack ?? e) };
 });
