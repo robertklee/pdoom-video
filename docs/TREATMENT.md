@@ -46,7 +46,7 @@ The video is presented as **plates from an illustrated treatise on the end of th
 
 ## Plates (scene modules)
 
-Times are approximate; exact windows come from `src/timeline.ts`, which is derived from the aligned lyrics. Look lines up by content through the `Lyrics` API, never hard-code times inside scenes.
+Times are approximate; exact windows come from `src/timelines/pdoom.ts`, which is derived from the aligned lyrics. Look lines up by content through the `Lyrics` API, never hard-code times inside scenes.
 
 | id | window | lyric | owner |
 |---|---|---|---|

@@ -70,9 +70,15 @@ def estimate_grid(y, sr):
     while bpm > hi:
         bpm /= 2
     P = 60 / bpm
-    # phase: circular mean of the tracked beats on the constant grid
-    ph = np.angle(np.mean(np.exp(2j * np.pi * np.asarray(beats) / P)))
-    first = (ph / (2 * np.pi) * P) % P
+    # librosa's tempo is quantised: fit period + phase by least squares on the tracked beats
+    beats = np.asarray(beats)
+    if len(beats) >= 8:
+        k = np.concatenate([[0], np.cumsum(np.maximum(1, np.round(np.diff(beats) / P)))])
+        P, first = np.polyfit(k, beats, 1)
+        bpm = 60 / P
+    else:
+        first = float(np.angle(np.mean(np.exp(2j * np.pi * beats / P))) / (2 * np.pi) * P)
+    first %= P
     print(f"estimated {bpm:.2f} BPM, first beat {first:.3f} s (check it; pass --bpm/--first-beat to override)")
     return bpm, first
 

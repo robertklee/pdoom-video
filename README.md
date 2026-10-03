@@ -14,15 +14,16 @@ The concept, style bible and plate-by-plate treatment are in [`docs/TREATMENT.md
 
 ## Layout
 
+- `song.json` — the song config: title, audio and lyrics files, timing data, timeline and analysis profile (see [Make a video for another song](#make-a-video-for-another-song)).
 - `audio/pdoom.mp3` — the song (the Claude-Pop version, see Credits).
 - `lyrics/lyrics.src.js` — the original line-level lyrics (approximate timings).
-- `analysis/` — Python (uv) tools that produced the timing data: Demucs stem separation, CTC forced alignment cross-checked with Whisper, beat/downbeat/onset analysis. See `analysis/align.py` and `analysis/analyze.py`.
+- `analysis/` — Python (uv) tools that produced the timing data: Demucs stem separation, CTC forced alignment cross-checked with Whisper, beat/downbeat/onset analysis. See `analysis/align.py` and `analysis/analyze.py`. The song-specific settings (section map, manual alignment fixes, pronunciations) are in `analysis/songs/pdoom.py`.
 - `data/lyrics.json` — word-level (and some syllable-level) lyric timings.
 - `data/audio.json` — tempo (132.007 BPM), beats, downbeats, sections, drum/vocal onsets and loudness envelopes.
 - `app/` — the renderer: TypeScript + three.js, bun + Vite.
   - `src/engine/` — renderer core: timeline playback, post-processing (bloom, halation, grain), typography (Archivo, IBM Plex Mono, Cormorant Garamond, single-stroke plotter fonts), GPU line batches, HUD.
   - `src/scenes/` — one module per plate (`open`, `loss`, `prompt`, `hook`, `room`, `shoggoth`, `spacetime`, `ascent`, `bureau`, `leftturn`, `paperclips`, `fuse`, `stack`, `dense`, `loom`, `ilya`, `outro`) plus shared motifs.
-  - `src/timeline.ts` — the edit: scene windows anchored to lyric lines and snapped to the beat grid.
+  - `src/timelines/pdoom.ts` — the edit: scene windows anchored to lyric lines and snapped to the beat grid. `src/timelines/starter.ts` is a generic edit for new songs.
   - `scripts/render.ts` — offline renderer (headless Chrome → raw frames over WebSocket → ffmpeg).
 - `out/` — renders (not in the repo).
 
@@ -78,7 +79,7 @@ bun scripts/render.ts video --scale 2 --samples auto --shutter 0.2 --x264 aq-mod
 
 The committed `data/*.json` files are all the renderer needs. Regenerating them needs the stems and intermediates, which are not in the repo:
 
-- **Stems:** Demucs `htdemucs_ft` into `analysis/stems/htdemucs_ft/pdoom/` (`uv run python -m demucs -n htdemucs_ft -o stems ../audio/pdoom.mp3`), plus the lead vocal from a mel-band-roformer karaoke model (audio-separator) in `analysis/stems/karaoke/lead.wav`.
+- **Stems:** Demucs `htdemucs_ft` into `analysis/stems/htdemucs_ft/pdoom/` (`uv run python -m demucs -n htdemucs_ft -o stems ../audio/pdoom.mp3`; the folder is named after the audio file), plus the lead vocal from a mel-band-roformer karaoke model (audio-separator) in `analysis/stems/karaoke/lead.wav`.
 - **Intermediates:** `ctc_emissions.py`, `whisper_run.py` and `vocal_feats.py` write them to `analysis/work/`. The pipeline is described at the top of `analysis/align.py`.
 
 ```sh
@@ -88,6 +89,47 @@ uv run python analyze.py    # data/audio.json
 ```
 
 The models download about 4 GB of weights into `analysis/.cache/`; delete that folder afterwards.
+
+## Make a video for another song
+
+The engine, the analysis pipeline and the starter edit are song-independent. Everything about a song is in a song config: `song.json` at the root is the P(doom) video, and `SONG=<folder or config file>` (absolute or relative to the repo root) picks another one, for both the app and the analysis scripts. Make sure you have the rights to the song and lyrics you use.
+
+1. **Make a song folder,** for example `songs/mysong/`:
+
+   ```
+   songs/mysong/
+     song.json        {"id": "mysong", "title": "My Song", "audio": "mysong.mp3",
+                       "lyricsSource": "lyrics.src.js", "lyrics": "data/lyrics.json",
+                       "audioData": "data/audio.json", "timeline": "starter"}
+     mysong.mp3
+     lyrics.src.js    const LY = [[start, end, "line text"], ...];   (rough line times are fine)
+   ```
+
+   Paths in `song.json` are relative to its folder and must stay inside it. `id` is letters, digits, `-` and `_`. `timeline` names `app/src/timelines/<name>.ts` (default `starter`) and `analysis` names `analysis/songs/<name>.py` (default: the id).
+
+2. **Approximate data, no ML:** `bootstrap.py` writes `data/lyrics.approx.json` (words spread over each line) and `data/audio.approx.json` (constant beat grid, downbeats, sections from the gaps between lines, rough envelopes). The app falls back to these until the measured files exist.
+
+   ```sh
+   cd analysis
+   SONG=songs/mysong uv run python bootstrap.py --bpm 120 --first-beat 0.52   # omit both for a librosa estimate
+   ```
+
+3. **Preview and render** with the starter edit: one word-synced `karaoke` plate per section.
+
+   ```sh
+   cd app
+   SONG=songs/mysong bunx vite                                   # restart the server when switching songs
+   SONG=songs/mysong bun scripts/render.ts stills --t 10,30,60
+   SONG=songs/mysong bun scripts/render.ts video --samples 4 --out ../out/mysong.mp4
+   ```
+
+   `render.ts` refuses a running dev server that serves another song: stop it, or pass `--url` for a server started with the same `SONG`.
+
+4. **Measured timing data:** copy `analysis/songs/_template.py` to `analysis/songs/mysong.py`. Separate the stems as in [Regenerate the timing data](#regenerate-the-timing-data) (with `SONG=songs/mysong` and the new audio file), run `stem_offset.py` and put its result in the profile, then run the intermediates, `analyze.py` and `align.py`. Check the QA plots in `analysis/qa/mysong/` and add a tempo range, bar phase, section map, pronunciations or alignment fixes to the profile where they are wrong. The models download about 4 GB.
+
+5. **Your own edit:** copy `app/src/timelines/starter.ts` to `app/src/timelines/mysong.ts`, set `"timeline": "mysong"`, and replace plates one at a time with new scenes (see [`docs/ENGINE.md`](docs/ENGINE.md)). Anchor cuts to lyric lines with `ly.get('...')` as `pdoom.ts` does.
+
+Intermediates for another song go to `analysis/work/<id>/`, `analysis/qa/<id>/` and `analysis/stems/karaoke/<id>/`; the root song keeps the flat folders.
 
 ## Credits
 
