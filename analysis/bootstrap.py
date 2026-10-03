@@ -146,8 +146,11 @@ def main():
     if not (20 <= bpm <= 400) or a.beats_per_bar < 1:
         sys.exit("unreasonable --bpm / --beats-per-bar")
     P = 60 / bpm
-    first %= P
     B, d0 = a.beats_per_bar, a.first_downbeat_beat
+    # extend the grid back to the song start; the given first beat keeps its place in the bar
+    shift = int(first // P)
+    first -= shift * P
+    d0 += shift
     nb = int((dur - first) / P) + 1
     beats = [round(first + k * P, 3) for k in range(nb)]
     downbeats = [beats[k] for k in range(nb) if (k - d0) % B == 0]
