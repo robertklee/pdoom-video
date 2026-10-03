@@ -115,6 +115,34 @@ export interface ProjectManifest {
   analysis?: Record<string, unknown>;
 }
 
+// The whole video lives in a restrained palette: ink, bone, and one signal colour.
+// One rare accent (acid, the shrooms moment) — see docs/TREATMENT.md.
+// A project's manifest can recolour every key (a brand palette); the keys and their roles stay.
+export const DEFAULT_HEX = {
+  ink: '#0A0A0B', // background black (slightly warm)
+  ink2: '#151517', // raised black (panels, paper-in-the-dark)
+  graphite: '#5E5B57', // dim lines, secondary text
+  ash: '#9C978F', // mid grey
+  bone: '#EEE9DF', // paper white, primary text
+  signal: '#FF4D12', // hazard orange: the spark, the fuse, P(doom)
+  ember: '#FF8A3D', // hotter, lighter orange for cores/highlights
+  blood: '#C21D0B', // deep red-orange for shadows of signal
+  acid: '#D8FF3C', // acid: only for the shrooms moment
+} as const;
+
+export type PaletteKey = keyof typeof DEFAULT_HEX;
+
+/** A project's palette (sRGB hex): the defaults with its overrides, validated. */
+export function projectPalette(m: Pick<ProjectManifest, 'palette'>): Record<PaletteKey, string> {
+  const hex: Record<PaletteKey, string> = { ...DEFAULT_HEX };
+  for (const [k, v] of Object.entries(m.palette ?? {})) {
+    if (!(k in DEFAULT_HEX)) throw new Error(`project palette: unknown key '${k}' (keys: ${Object.keys(DEFAULT_HEX).join(', ')})`);
+    if (!/^#[0-9a-f]{6}$/i.test(v)) throw new Error(`project palette: ${k} must be #rrggbb, got '${v}'`);
+    hex[k as PaletteKey] = v;
+  }
+  return hex;
+}
+
 export const DEFAULT_LANGUAGE: Language = { code: 'en', name: 'English', iso639_2: 'eng' };
 
 export function languages(m: ProjectManifest): Language[] {

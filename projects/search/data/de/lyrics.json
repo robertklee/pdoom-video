@@ -122,7 +122,8 @@
           "w": "nichts.",
           "start": 9.814,
           "end": 10.031,
-          "conf": 0.2
+          "conf": 0.2,
+          "key": true
         },
         {
           "w": "Oder",
@@ -134,7 +135,8 @@
           "w": "alles.",
           "start": 10.846,
           "end": 11.281,
-          "conf": 0.2
+          "conf": 0.2,
+          "key": true
         }
       ]
     },
@@ -301,13 +303,15 @@
           "w": "das",
           "start": 23.989,
           "end": 24.206,
-          "conf": 0.2
+          "conf": 0.2,
+          "key": true
         },
         {
           "w": "Wichtigste",
           "start": 24.206,
           "end": 24.858,
-          "conf": 0.2
+          "conf": 0.2,
+          "key": true
         },
         {
           "w": "zuerst.",
@@ -688,6 +692,9 @@
     "sem.1": "Verlängerungsoption",
     "sem.2": "Laufzeitfortsetzung",
     "sem.3": "Neuunterzeichnung",
+    "bar.before": "Stichwortsuche",
+    "bar.after": "Acme Search",
+    "unit.hours": "Std.",
     "speed.label": "Antwortzeit (Median)",
     "proof.1.label": "schneller Dokumente finden",
     "proof.2.label": "gespart pro Person und Woche",

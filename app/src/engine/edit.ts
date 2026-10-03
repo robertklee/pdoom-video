@@ -14,6 +14,11 @@ export interface Edit {
   end(phrase: string, nth?: number): number;
   /** Start of a word (or consecutive words) inside a line: `word('proof.1', 'three times')`. */
   word(phrase: string, words: string, nth?: number): number;
+  /**
+   * Start of the k-th key term of a line (words marked *like this* in the script). Unlike `word`, it
+   * holds in every language: each translation marks its own key terms in the same order.
+   */
+  key(phrase: string, k?: number, nth?: number): number;
   /** Snap a time to the nearest beat / downbeat. */
   beat(t: number): number;
   downbeat(t: number): number;
@@ -34,6 +39,12 @@ export function edit(ly: Lyrics, au: AudioData): Edit {
       const hit = ly.findPhrase(words).find((ws) => ws[0]!.line === l.i);
       if (!hit) throw new Error(`"${words}" not found in line ${l.id ?? l.i}: ${l.text}`);
       return hit[0]!.start;
+    },
+    key(q, k = 0, nth = 0) {
+      const l = ly.get(q, nth);
+      const run = ly.keyTerms(l)[k];
+      if (!run) throw new Error(`line ${l.id ?? l.i} has no key term #${k}: ${l.text}`);
+      return run[0]!.start;
     },
     beat: (t) => au.nearestBeat(t),
     downbeat,

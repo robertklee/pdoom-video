@@ -128,7 +128,8 @@
           "w": "nothing.",
           "start": 10.316,
           "end": 10.792,
-          "conf": 0.2
+          "conf": 0.2,
+          "key": true
         },
         {
           "w": "Or",
@@ -140,7 +141,8 @@
           "w": "everything.",
           "start": 11.41,
           "end": 12.362,
-          "conf": 0.2
+          "conf": 0.2,
+          "key": true
         }
       ]
     },
@@ -320,19 +322,22 @@
           "w": "what",
           "start": 24.672,
           "end": 24.91,
-          "conf": 0.2
+          "conf": 0.2,
+          "key": true
         },
         {
           "w": "matters",
           "start": 24.91,
           "end": 25.386,
-          "conf": 0.2
+          "conf": 0.2,
+          "key": true
         },
         {
           "w": "first.",
           "start": 25.386,
           "end": 25.625,
-          "conf": 0.2
+          "conf": 0.2,
+          "key": true
         }
       ]
     },
@@ -733,6 +738,9 @@
     "sem.1": "extension",
     "sem.2": "term continuation",
     "sem.3": "re-signing",
+    "bar.before": "Keyword search",
+    "bar.after": "Acme Search",
+    "unit.hours": "hours",
     "speed.label": "median time to answer",
     "proof.1.label": "faster to find documents",
     "proof.2.label": "saved per person, per week",

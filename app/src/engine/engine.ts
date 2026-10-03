@@ -12,7 +12,7 @@ import type { Frame, Scene, SceneClass, SceneCtx, PostOverrides } from './scene'
 import { loadFonts, setFontRoles } from './type';
 import { loadStrokeFonts } from './stroke';
 import { Assets } from './assets';
-import { buildCues, checkContrast } from './captions';
+import { buildCues, captionStyle, checkContrast } from './captions';
 import { HEX, type PaletteKey } from './palette';
 import { BURN_IN, PATHS, PROJECT } from './project';
 
@@ -177,8 +177,7 @@ export class Engine {
   /** Burned-in captions of the voice-over: cues from the word timings, colours from the palette. */
   private openCaptions(): OpenCaptions {
     const rules = PROJECT.captions ?? {};
-    const col = (k: string | undefined, d: PaletteKey) => HEX[(k ?? d) as PaletteKey] ?? k ?? HEX[d];
-    const style = { text: col(rules.text, 'bone'), key: col(rules.key, 'signal'), plate: col(rules.plate, 'ink'), plateAlpha: 0.94 };
+    const style = captionStyle(rules, HEX);
     for (const p of checkContrast(style)) this.errors.push(`[captions] ${p}`);
     return { cues: buildCues(this.lyrics, rules), style };
   }

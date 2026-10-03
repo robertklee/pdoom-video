@@ -148,6 +148,12 @@ export function contrast(a: string, b: string): number {
 /** Resolved colours of the burned-in captions. */
 export interface CaptionStyle { text: string; key: string; plate: string; plateAlpha: number }
 
+/** Burn-in colours from the caption rules: palette keys (or literal #hex) resolved against `hex`. */
+export function captionStyle(rules: CaptionRules, hex: Record<string, string>): CaptionStyle {
+  const col = (k: string | undefined, d: string) => hex[k ?? d] ?? k ?? hex[d]!;
+  return { text: col(rules.text, 'bone'), key: col(rules.key, 'signal'), plate: col(rules.plate, 'ink'), plateAlpha: 0.94 };
+}
+
 /** Contrast problems of a caption style (empty when the text and key colours pass AA on the plate). */
 export function checkContrast(s: CaptionStyle, min = 4.5): string[] {
   const out: string[] = [];

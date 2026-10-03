@@ -1,30 +1,12 @@
 import { hexToLinear } from './util';
 import { PROJECT } from './project';
+import { projectPalette, type PaletteKey } from './manifest';
 
-// The whole video lives in a restrained palette: ink, bone, and one signal colour.
-// One rare accent (acid, the shrooms moment) — see docs/TREATMENT.md.
-// A project's manifest can recolour every key (a brand palette); the keys and their roles stay.
-export const DEFAULT_HEX = {
-  ink: '#0A0A0B', // background black (slightly warm)
-  ink2: '#151517', // raised black (panels, paper-in-the-dark)
-  graphite: '#5E5B57', // dim lines, secondary text
-  ash: '#9C978F', // mid grey
-  bone: '#EEE9DF', // paper white, primary text
-  signal: '#FF4D12', // hazard orange: the spark, the fuse, P(doom)
-  ember: '#FF8A3D', // hotter, lighter orange for cores/highlights
-  blood: '#C21D0B', // deep red-orange for shadows of signal
-  acid: '#D8FF3C', // acid: only for the shrooms moment
-} as const;
-
-export type PaletteKey = keyof typeof DEFAULT_HEX;
+// The palette keys and the P(doom) defaults live in manifest.ts (shared with the bun scripts).
+export { DEFAULT_HEX, type PaletteKey } from './manifest';
 
 /** The palette of the selected project (sRGB hex). */
-export const HEX: Record<PaletteKey, string> = { ...DEFAULT_HEX };
-for (const [k, v] of Object.entries(PROJECT.palette ?? {})) {
-  if (!(k in DEFAULT_HEX)) throw new Error(`project palette: unknown key '${k}' (keys: ${Object.keys(DEFAULT_HEX).join(', ')})`);
-  if (!/^#[0-9a-f]{6}$/i.test(v)) throw new Error(`project palette: ${k} must be #rrggbb, got '${v}'`);
-  HEX[k as PaletteKey] = v;
-}
+export const HEX: Record<PaletteKey, string> = projectPalette(PROJECT);
 
 /** Linear RGB triplets for GL uniforms. */
 export const LIN: Record<PaletteKey, [number, number, number]> = Object.fromEntries(
