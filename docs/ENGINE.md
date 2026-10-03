@@ -9,10 +9,11 @@ The video is a web app (`app/`, TypeScript + three.js, run with bun + Vite) that
 - Contact sheet of a time range: `bun scripts/render.ts sheet --from 1.5 --to 9 --n 16 --cols 4 --only open --out ../out/wip/open/sheet.png`
 - Short video clip (to judge motion: extract frames with ffmpeg, or just trust the math): `bun scripts/render.ts video --from 20 --to 25 --only hook --out ../out/wip/hook.mp4 --preset veryfast`
 - `--only a,b` loads only those timeline entries (fast, and isolates you from other people's broken scenes). Without a matching entry nothing renders (black), so the entry must exist in `src/timeline.ts`.
+- The song (audio file, title, default output `out/<name>.mp4`) comes from `song.json` at the repo root. The renderer drives the page through `window.__export`.
 - Typecheck just your files: `bunx tsc --noEmit -p tsconfig.json 2>&1 | grep scenes/yourscene`.
 - The render script prints `SCENE ERRORS` and browser console errors — read them.
 - 4K: add `--scale 2` to any mode (`stills` then saves full-resolution 3840×2160 PNGs). Check your scene at both scales: downscaled, the 4K frame should look like the 1080p one, only sharper.
-- Renders while files are being edited: run a server without live reload (`PDOOM_NO_HMR=1 bunx vite --port 5190`) and pass `--url http://localhost:5190`; a live-reloading server reloads the page mid-render. The private server that `render.ts` starts when none is reachable already runs without it.
+- Renders while files are being edited: run a server without live reload (`NO_HMR=1 bunx vite --port 5190`) and pass `--url http://localhost:5190`; a live-reloading server reloads the page mid-render. The private server that `render.ts` starts when none is reachable already runs without it.
 
 ## Data
 
@@ -50,9 +51,14 @@ Rules:
 - `render()` must fully overwrite `out` (a HalfFloat linear-HDR target). Colours are **linear**; values > ~0.85 bloom. Use palette constants (`C_INK`, `C_BONE`, `C_SIGNAL`… in GLSL; `LIN.signal` in TS for GL; `rgba('signal', a)` for Canvas2D).
 - `ctx.params` holds the timeline entry's params (one module can serve several entries); `ctx.start/ctx.end` its window; `f.lt`/`f.p` local time/progress.
 - Transitions: by default the engine crossfades overlapping entries. For custom transitions set `handlesTransition = true` and composite `f.under` (the previous scene's frame) yourself using `f.tin` (0→1 over the overlap). Most cuts should be hard cuts on downbeats (no overlap) — that's the default when windows touch.
-- Post overrides you can return: `exposure, bloom, bloomThreshold, bloomKnee, bloomRadius, halation, ca, grain, vignette, hud (HUD opacity), fade, flash, shake:[x,y], zoom, invert, pdoomText, hudCorruption`. Defaults in `src/engine/post.ts`.
+- Post overrides you can return: `exposure, bloom, bloomThreshold, bloomKnee, bloomRadius, halation, ca, grain, vignette, hud (HUD opacity), fade, flash, shake:[x,y], zoom, invert, readout, readoutText, hudCorruption`. Defaults in `src/engine/post.ts`.
 - Performance: aim for < 25 ms/frame. Canvas2D layers cost ~2–4 ms to upload each; don't use more than 2–3 per scene. Precompute in `init()`.
 - Don't edit files outside your scene files (and your own helper files named `scenes/<name>-*.ts`). Engine changes: ask the lead (report in your final message what you'd need). Do not edit `src/timeline.ts`.
+- Starting a new scene: `src/templates/karaoke.ts` is the minimal one (background pass, `Layer2D` lyric line, words lit by `Lyrics.wordProgress`; stateless). Templates are parametric (`ctx.params`) and can be used straight from the timeline (`'templates/karaoke'`).
+
+## The edit
+
+`src/timeline.ts` lists the entries; the song-agnostic helpers are in `src/engine/edit.ts` (`editTools(lyrics, audio, modules)`): `cut(phrase, nth, tol)` is the last beat at or before the first word of the nth line containing the phrase, `after(phrase)` the downbeat nearest the end of a line, `section(name)` the start of an analysed section, and `entry(id, module, start, end, extra)` builds an entry whose scene module (`'hook'` → `scenes/hook.ts`, `'templates/karaoke'` → `templates/karaoke.ts`) loads lazily. `src/project.ts` hands the timeline and the optional plug-ins to the `Engine`. New songs: [`NEW_SONG.md`](NEW_SONG.md).
 
 ## Toolbox
 
@@ -68,7 +74,9 @@ Rules:
 - Lyrics come with typographic punctuation (`don’t`, `’cause`, `“Just`): `Word.w` and `Line.text` go through `smart()`; `lyrics.get()` matches straight or curly quotes. Hardcoded display strings use ’ “ ” … – — × − too. Mono text (IBM Plex Mono) is the UI/terminal voice and keeps typewriter quotes (`plain()` for a lyric shown as typed input).
 - No outlined or haloed type.
 - `util.ts`: `clamp, lerp, remap, smoothstep, ease.*, prog(x,a,b,ease), keys(t, [[t,v,ease],...]), springStep, pulse, mulberry32, hash, noise1/2/3, fbm1/2, polylineLengths, pointAtLength, window01`.
-- `hud.ts`: the global HUD (crop marks; optional captions from timeline entries, unused since revision 2; the bottom-left P(doom) readout is OFF unless a scene returns `post.pdoom > 0`). P(doom) is staged inside plates: `new PDoom(lyrics).value(t)`, `formatPDoom(v)`, and `drawReadout(ctx2d, x, y, v, {scale})` to draw the instrument anywhere. `PDoom.value(t)` is available as `engine.hud.pdoom` — if you need the value in a scene, recompute with `new PDoom(this.ctx.lyrics).value(t)`.
+- `hud.ts`: the global HUD (crop marks; optional captions from timeline entries, unused since revision 2; the bottom-left readout is OFF unless a scene returns `post.readout > 0`, and only exists if the project has a `readout` plug-in).
+- `readout.ts`: the readout plug-in interface (`Readout`: label, `value(t)`, `format(v)`, `flash(t)`), `WordCounter` (a value that steps up each time a word is sung, rolling to each new value) and `drawReadout(ctx2d, x, y, v, {scale, title, text})` to draw the instrument anywhere.
+- This video's P(doom) is a `WordCounter` (`scenes/_pdoom.ts`), staged inside plates: `new PDoom(lyrics).value(t)`, `formatPDoom(v)`, and `drawReadout(ctx2d, x, y, v, {scale})` (the P(DOOM) instrument). The engine's instance is `engine.hud.readout` — if you need the value in a scene, recompute with `new PDoom(this.ctx.lyrics).value(t)`.
 
 ## Output scale (4K)
 

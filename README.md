@@ -12,17 +12,22 @@ The song is not ours: see [Credits](#credits) for who wrote and made it.
 
 The concept, style bible and plate-by-plate treatment are in [`docs/TREATMENT.md`](docs/TREATMENT.md). The engine and scene API are documented in [`docs/ENGINE.md`](docs/ENGINE.md).
 
+The engine and the analysis pipeline are not tied to this song. [`docs/NEW_SONG.md`](docs/NEW_SONG.md) explains how to make a video for another one.
+
 ## Layout
 
+- `song.json` — the song setting shared by the player, the renderer and the analysis: title, output name, audio and lyrics files.
 - `audio/pdoom.mp3` — the song (the Claude-Pop version, see Credits).
 - `lyrics/lyrics.src.js` — the original line-level lyrics (approximate timings).
-- `analysis/` — Python (uv) tools that produced the timing data: Demucs stem separation, CTC forced alignment cross-checked with Whisper, beat/downbeat/onset analysis. See `analysis/align.py` and `analysis/analyze.py`.
+- `analysis/` — Python (uv) tools that produced the timing data: Demucs stem separation, CTC forced alignment cross-checked with Whisper, beat/downbeat/onset analysis. See `analysis/align.py` and `analysis/analyze.py`. Everything specific to this song (section map, hand fixes, stem offset, pronunciations) is in `analysis/song.py`.
 - `data/lyrics.json` — word-level (and some syllable-level) lyric timings.
 - `data/audio.json` — tempo (132.007 BPM), beats, downbeats, sections, drum/vocal onsets and loudness envelopes.
 - `app/` — the renderer: TypeScript + three.js, bun + Vite.
-  - `src/engine/` — renderer core: timeline playback, post-processing (bloom, halation, grain), typography (Archivo, IBM Plex Mono, Cormorant Garamond, single-stroke plotter fonts), GPU line batches, HUD.
-  - `src/scenes/` — one module per plate (`open`, `loss`, `prompt`, `hook`, `room`, `shoggoth`, `spacetime`, `ascent`, `bureau`, `leftturn`, `paperclips`, `fuse`, `stack`, `dense`, `loom`, `ilya`, `outro`) plus shared motifs.
+  - `src/engine/` — renderer core (song-agnostic): timeline playback, edit helpers, post-processing (bloom, halation, grain), typography (Archivo, IBM Plex Mono, Cormorant Garamond, single-stroke plotter fonts), GPU line batches, HUD and its optional readout plug-in.
+  - `src/scenes/` — one module per plate (`open`, `loss`, `prompt`, `hook`, `room`, `shoggoth`, `spacetime`, `ascent`, `bureau`, `leftturn`, `paperclips`, `fuse`, `stack`, `dense`, `loom`, `ilya`, `outro`) plus shared motifs and the P(doom) counter.
+  - `src/templates/` — reusable starter scenes (`karaoke`).
   - `src/timeline.ts` — the edit: scene windows anchored to lyric lines and snapped to the beat grid.
+  - `src/project.ts` — what the engine gets for this video: the timeline and the P(doom) readout plug-in.
   - `scripts/render.ts` — offline renderer (headless Chrome → raw frames over WebSocket → ffmpeg).
 - `out/` — renders (not in the repo).
 
@@ -78,7 +83,7 @@ bun scripts/render.ts video --scale 2 --samples auto --shutter 0.2 --x264 aq-mod
 
 The committed `data/*.json` files are all the renderer needs. Regenerating them needs the stems and intermediates, which are not in the repo:
 
-- **Stems:** Demucs `htdemucs_ft` into `analysis/stems/htdemucs_ft/pdoom/` (`uv run python -m demucs -n htdemucs_ft -o stems ../audio/pdoom.mp3`), plus the lead vocal from a mel-band-roformer karaoke model (audio-separator) in `analysis/stems/karaoke/lead.wav`.
+- **Stems:** Demucs `htdemucs_ft` into `analysis/stems/htdemucs_ft/pdoom/` (`uv run python -m demucs -n htdemucs_ft -o stems ../audio/pdoom.mp3`), plus the lead vocal from a mel-band-roformer karaoke model (audio-separator) in `analysis/stems/karaoke/lead.wav`. `stem_offset.py` measures the stems' encoder-delay offset (`STEM_OFFSET_SAMPLES` in `analysis/song.py`).
 - **Intermediates:** `ctc_emissions.py`, `whisper_run.py` and `vocal_feats.py` write them to `analysis/work/`. The pipeline is described at the top of `analysis/align.py`.
 
 ```sh
