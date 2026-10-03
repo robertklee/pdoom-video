@@ -220,6 +220,16 @@ def vocal_onsets(v, sr):
 
 
 # ---------------------------------------------------------------------------
+class BarTimes:
+    """{bar[k]} in song.AUDIO_NOTES: the start time of bar k (any k, like bar_t)."""
+
+    def __init__(self, bar_t):
+        self.bar_t = bar_t
+
+    def __getitem__(self, k):
+        return self.bar_t(int(k))
+
+
 def main(plots=False):
     mix, _ = common.load_mix(SR)
     duration = len(mix) / SR
@@ -286,8 +296,7 @@ def main(plots=False):
         **env,
         onsets=onsets,
         notes=song.AUDIO_NOTES.format(bpm=bpm, off=off, P=P, first_db=float(downbeats[0]),
-                                      bar=[bar_t(k) for k in range(len(downbeats) + 1)],
-                                      sn=len(st), kk=len(kt), hh=len(ht)),
+                                      bar=BarTimes(bar_t), sn=len(st), kk=len(kt), hh=len(ht)),
     )
     (common.DATA / "audio.json").write_text(json.dumps(doc, separators=(",", ":")))
     print("wrote", common.DATA / "audio.json", f"{len(beats)} beats, {len(downbeats)} downbeats, "

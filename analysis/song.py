@@ -5,8 +5,9 @@ song.json.
 
 For a new song (see docs/NEW_SONG.md): set STEM_OFFSET_SAMPLES with
 stem_offset.py, empty FIX / ANCHORS / LINE_WINDOWS / EXTRA_DESC, replace PRON
-and WHISPER_PROMPT, set BPM_RANGE / BEATS_PER_BAR / FIRST_DOWNBEAT, write
-SECTION_BARS from the QA plots, and rewrite the two NOTES texts.
+and WHISPER_PROMPT, set BPM_RANGE / BEATS_PER_BAR / FIRST_DOWNBEAT, start with
+SECTION_BARS = [("song", None, None)] and write the real map from the QA
+plots, and rewrite the two NOTES texts.
 """
 
 # ---------------------------------------------------------------------------

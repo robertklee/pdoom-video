@@ -36,6 +36,7 @@ Fork or copy the repo, then clear out this song:
 - Point `song.json` at the new files (`title`, `name`, `audio`, `lyrics`; paths relative to the repo root).
 - In `app/src/project.ts`, drop the P(doom) readout (or configure a `WordCounter` for a word your song counts).
 - Replace `app/src/timeline.ts`'s entries (step 5) and, once nothing references them, delete the old scenes, `app/plates.json` and `app/public/plates/`.
+- Delete this song's timing data: `data/lyrics.json`, `data/audio.json` and the two `data/*.approx.json` files. The app, `analysis/common.py`'s beat grid and the QA plots would otherwise keep using them against the new audio.
 - Reset `analysis/song.py` (step 3).
 
 The export hook the renderer drives is `window.__export`; renders that must not live-reload use `NO_HMR=1`.
@@ -49,20 +50,20 @@ The export hook the renderer drives is `window.__export`; renders that must not 
 
 ### 3. Regenerate the timing data
 
-All commands run in `analysis/` with [uv](https://docs.astral.sh/uv/). First reset `analysis/song.py`: empty `FIX`, `ANCHORS`, `LINE_WINDOWS` and `EXTRA_DESC`, and replace `PRON` (pronunciations for words the CTC alphabet can't spell: numbers, names, symbols) and `WHISPER_PROMPT`.
+All commands run in `analysis/` with [uv](https://docs.astral.sh/uv/). First reset `analysis/song.py`: empty `FIX`, `ANCHORS`, `LINE_WINDOWS` and `EXTRA_DESC`, set `SECTION_BARS = [("song", None, None)]` until you have the real map, and replace `PRON` (pronunciations for words the CTC alphabet can't spell: numbers, names, symbols) and `WHISPER_PROMPT`.
 
 1. **Stems.** Demucs `htdemucs_ft` into `analysis/stems/htdemucs_ft/<audio file stem>/`, e.g. `uv run python -m demucs -n htdemucs_ft -o stems ../audio/<song>.mp3`. Then the lead vocal from a mel-band-roformer karaoke model (audio-separator) as `analysis/stems/karaoke/lead.wav`.
 2. **Stem offset.** An mp3's encoder delay can shift the stems against the gapless decode that the player and the export use. Run `uv run python stem_offset.py`: it cross-correlates the sum of the raw stems with the mix in several windows and prints the value for `STEM_OFFSET_SAMPLES` in `song.py`. The windows should agree; if they don't, the offset drifts and needs a closer look. A wav input usually measures 0.
-3. **Features and alignment.** `uv run python ctc_emissions.py`, `uv run python whisper_run.py`, `uv run python vocal_feats.py`, then `uv run python align.py --plots` (writes `data/lyrics.json` and QA plots into `analysis/qa/`).
-4. **Hand fixes.** Look at the QA plots. Add entries to `FIX`/`ANCHORS` only where the automatic result is clearly wrong: held vowels, vocals buried under the mix, pickups. Rerun `align.py` after each change.
-5. **Beat grid and sections.** Set `BPM_RANGE`, `BEATS_PER_BAR` and `FIRST_DOWNBEAT`, then run `uv run python analyze.py --plots`. It writes `data/audio.json` and QA plots, and prints the fitted tempo (check it against the song) and where the kicks and snares fall in the bar (check the downbeat). Then write the section map in bars (`SECTION_BARS`: bar k starts on downbeat k, `None` = the start or end of the song) and run it again.
-6. **Notes.** Rewrite `AUDIO_NOTES` and `LYRICS_NOTES` in `song.py`. They are copied into the JSON files.
+3. **Beat grid and sections.** Set `BPM_RANGE`, `BEATS_PER_BAR` and `FIRST_DOWNBEAT`, then run `uv run python analyze.py --plots`. It writes `data/audio.json` and QA plots into `analysis/qa/`, and prints the fitted tempo (check it against the song) and where the kicks and snares fall in the bar (check the downbeat). Then write the section map in bars (`SECTION_BARS`: bar k starts on downbeat k, `None` = the start or end of the song) and run it again.
+4. **Features and alignment.** `uv run python ctc_emissions.py`, `uv run python whisper_run.py`, `uv run python vocal_feats.py`, then `uv run python align.py --plots` (writes `data/lyrics.json` and QA plots, drawn over the beat grid from step 3).
+5. **Hand fixes.** Look at the QA plots. Add entries to `FIX`/`ANCHORS` only where the automatic result is clearly wrong: held vowels, vocals buried under the mix, pickups. Rerun `align.py` after each change.
+6. **Notes.** Rewrite `AUDIO_NOTES` and `LYRICS_NOTES` in `song.py` (this song's texts still format, but describe the wrong song). They are copied into the JSON files.
 
 **Cost:** the model and stem steps download about 4 GB of weights into `analysis/.cache/`. Run them locally, or as a small job on one short excerpt first, before you run the whole song. Delete the cache afterwards.
 
 **Limits:** the alignment assumes English lyrics (a-z CTC alphabet, Whisper `language="en"`). `whisper_run.py` uses mlx-whisper, which needs Apple silicon. The tempo fit assumes a constant tempo.
 
-Until the alignment exists, the app falls back to `data/lyrics.approx.json` and `data/audio.approx.json` (same formats, rough times), so scene work can start early.
+The app needs `data/lyrics.json` and `data/audio.json` (it falls back to `data/*.approx.json`, rough hand-made files in the same formats, if they are missing), so run this step before scene work.
 
 ### 4. Write a new treatment
 
