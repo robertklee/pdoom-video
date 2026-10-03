@@ -18,7 +18,7 @@ import torchaudio
 from pron import pron
 
 FRAME = 0.02  # s per emission frame
-N_FRAMES = 7833
+N_FRAMES = int(np.ceil(common.duration() / FRAME))  # emission frames covering the song
 ALPHA = ["-"] + list("abcdefghijklmnopqrstuvwxyz'")
 AIDX = {c: i for i, c in enumerate(ALPHA)}
 

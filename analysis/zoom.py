@@ -10,6 +10,7 @@ y, sr = common.load_stem("vocals", sr=22050)
 f = dict(np.load(common.WORK / "vocal_feats.npz")); ht = float(f["hop_s"])
 _d = json.loads((common.WORK / "align_debug.json").read_text())
 dbg, alt = _d["words"], _d["alt"]
+_grid = json.loads(common.AUDIO_OUT.read_text()) if common.AUDIO_OUT.is_file() else {"beat_period": 0.5, "beats": [0.0]}
 
 
 def zoom(t0, t1, name):
@@ -34,7 +35,7 @@ def zoom(t0, t1, name):
     ax[2].plot(tt, f["mid_db"][i0:i1] - 40, "tab:red", lw=0.8, label="mid-40")
     axb = ax[2].twinx(); axb.fill_between(tt, 0, f["onset"][i0:i1], color="tab:green", alpha=0.3)
     ax[2].legend(loc="upper left", fontsize=7); ax[2].set_ylim(-70, 5)
-    P, OFF = 60 / 132, 0.708
+    P, OFF = _grid["beat_period"], _grid["beats"][0]
     for n in range(int((t0 - OFF) / P * 4) - 1, int((t1 - OFF) / P * 4) + 2):
         tb = OFF + n * P / 4
         if t0 <= tb <= t1:
