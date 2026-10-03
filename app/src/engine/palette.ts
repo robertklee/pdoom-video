@@ -1,8 +1,10 @@
 import { hexToLinear } from './util';
+import { PROJECT } from './project';
 
 // The whole video lives in a restrained palette: ink, bone, and one signal colour.
 // One rare accent (acid, the shrooms moment) — see docs/TREATMENT.md.
-export const HEX = {
+// A project's manifest can recolour every key (a brand palette); the keys and their roles stay.
+export const DEFAULT_HEX = {
   ink: '#0A0A0B', // background black (slightly warm)
   ink2: '#151517', // raised black (panels, paper-in-the-dark)
   graphite: '#5E5B57', // dim lines, secondary text
@@ -14,7 +16,15 @@ export const HEX = {
   acid: '#D8FF3C', // acid: only for the shrooms moment
 } as const;
 
-export type PaletteKey = keyof typeof HEX;
+export type PaletteKey = keyof typeof DEFAULT_HEX;
+
+/** The palette of the selected project (sRGB hex). */
+export const HEX: Record<PaletteKey, string> = { ...DEFAULT_HEX };
+for (const [k, v] of Object.entries(PROJECT.palette ?? {})) {
+  if (!(k in DEFAULT_HEX)) throw new Error(`project palette: unknown key '${k}' (keys: ${Object.keys(DEFAULT_HEX).join(', ')})`);
+  if (!/^#[0-9a-f]{6}$/i.test(v)) throw new Error(`project palette: ${k} must be #rrggbb, got '${v}'`);
+  HEX[k as PaletteKey] = v;
+}
 
 /** Linear RGB triplets for GL uniforms. */
 export const LIN: Record<PaletteKey, [number, number, number]> = Object.fromEntries(

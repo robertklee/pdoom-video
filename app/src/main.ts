@@ -1,32 +1,47 @@
 // Entry: preview player (default) or export mode (?export=1, driven by scripts/render.ts).
-import { Engine, type AdaptiveSampling } from './engine/engine';
-import { PW, PH, SCALE } from './engine/gl';
-import { makeTimeline } from './timeline';
+// ?project=<id> picks the film (projects/<id>/project.json, default pdoom), ?lang= its language and
+// ?format= its output format (16:9, 9:16, 1:1 where the project is laid out for them).
+import { Engine, type AdaptiveSampling, type MakeCounter, type MakeTimeline, type TimelineEntry } from './engine/engine';
+import { W, H, PW, PH, SCALE } from './engine/gl';
+import { BURN_IN, FORMAT, LANG, PATHS, PROJECT, PROJECT_ERRORS } from './engine/project';
 
 const params = new URLSearchParams(location.search);
 const EXPORT = params.has('export');
 const ONLY = params.get('only'); // comma-separated scene ids to load (faster stills)
 const FROM = params.get('t') ? parseFloat(params.get('t')!) : null;
 
+// each project's edit: the module named by its manifest (`timeline`, relative to app/)
+const TIMELINES = import.meta.glob<{ makeTimeline: MakeTimeline; makeCounter?: MakeCounter }>(['./timeline.ts', './projects/*/timeline.ts']);
+
 const canvas = document.getElementById('c') as HTMLCanvasElement;
-// physical size: 1920x1080 times ?scale= (the page CSS keeps showing it at 1920x1080)
+// physical size: the format's logical canvas (1920x1080 by default) times ?scale= (the page CSS keeps showing it at the logical size)
 canvas.width = PW;
 canvas.height = PH;
+document.documentElement.style.setProperty('--ar', `${W}/${H}`);
+document.documentElement.style.setProperty('--w', `${W}px`);
+document.documentElement.style.setProperty('--h', `${H}px`);
+document.title = PROJECT.title;
 
-const engine = new Engine(canvas, makeTimeline);
+let engine!: Engine;
 
 declare global {
   interface Window { __pdoom: any }
 }
 
-let TIMELINE: typeof engine.timeline = [];
+let TIMELINE: TimelineEntry[] = [];
 
 async function boot() {
+  if (PROJECT_ERRORS.length) throw new Error(PROJECT_ERRORS.join('\n'));
+  const key = `./${PROJECT.timeline.replace(/^src\//, '')}`;
+  const load = TIMELINES[key];
+  if (!load) throw new Error(`timeline module not found: ${PROJECT.timeline} (project ${PROJECT.id})`);
+  const mod = await load();
+  engine = new Engine(canvas, mod.makeTimeline, mod.makeCounter);
   const onlySet = ONLY ? new Set(ONLY.split(',')) : null;
   await engine.init(onlySet ? (e) => onlySet.has(e.id) : undefined);
   TIMELINE = engine.timeline;
   if (EXPORT) setupExport();
-  else setupPlayer();
+  else await setupPlayer();
 }
 
 // ------------------------------------------------------------------ export API
@@ -36,10 +51,15 @@ function setupExport() {
     engine,
     duration: engine.duration,
     errors: engine.errors,
-    /** Output size in px (1920x1080 times scale); stream() sends frames of width*height*4 bytes. */
+    /** Output size in px (the format's logical size times scale); stream() sends frames of width*height*4 bytes. */
     scale: SCALE,
     width: PW,
     height: PH,
+    /** What is rendered: project id, language, format and whether captions are burned in. */
+    project: PROJECT.id,
+    lang: LANG.code,
+    format: FORMAT,
+    burnIn: BURN_IN,
     timeline: TIMELINE.map(({ id, start, end }) => ({ id, start, end })),
     /** Render a single frame at t (seeks as needed). */
     still(t: number, samples: number | AdaptiveSampling = 1, shutter = 0.5) { return engine.render(t, 1 / 60, true, samples, shutter); },
@@ -94,9 +114,37 @@ function setupExport() {
 }
 
 // ------------------------------------------------------------------ preview player
-function setupPlayer() {
-  const audio = new Audio('audio/pdoom.mp3');
-  audio.preload = 'auto';
+/** What the player needs of an audio element: a clock that can play, pause and seek. */
+interface Clock { currentTime: number; readonly paused: boolean; readonly ended: boolean; play(): unknown; pause(): void }
+
+/** A clock without sound, for projects whose mix isn't rendered yet (draft timings, no voice-over). */
+class SilentClock implements Clock {
+  private base = 0;
+  private t0 = 0;
+  paused = true;
+  constructor(private duration: number) {}
+  get currentTime() { return this.paused ? this.base : Math.min(this.duration, this.base + (performance.now() - this.t0) / 1000); }
+  set currentTime(v: number) { this.base = v; this.t0 = performance.now(); }
+  get ended() { return !this.paused && this.currentTime >= this.duration; }
+  play() { this.t0 = performance.now(); this.paused = false; }
+  pause() { this.base = this.currentTime; this.paused = true; }
+}
+
+/** The project's mix for the selected language, or a silent clock when there is none yet. */
+async function openAudio(): Promise<{ clock: Clock; silent: boolean }> {
+  const r = await fetch(PATHS.mix, { method: 'HEAD' }).catch(() => null);
+  if (r?.ok && (r.headers.get('content-type') ?? '').startsWith('audio/')) {
+    const a = new Audio(PATHS.mix);
+    a.preload = 'auto';
+    return { clock: a, silent: false };
+  }
+  console.warn(`no audio at ${PATHS.mix}: playing on a silent clock`);
+  return { clock: new SilentClock(engine.duration), silent: true };
+}
+
+async function setupPlayer() {
+  const { clock: audio, silent } = await openAudio();
+  const label = `${PROJECT.id}${PROJECT.languages ? ` ${LANG.code}` : ''} ${FORMAT}${silent ? ' (silent)' : ''}`;
   const ui = document.getElementById('ui')!;
   const scrub = document.getElementById('scrub') as HTMLInputElement;
   const info = document.getElementById('info')!;
@@ -159,7 +207,7 @@ function setupPlayer() {
     if (now - fpsT > 500) { fps = (frames * 1000) / (now - fpsT); frames = 0; fpsT = now; }
     const e = TIMELINE.find((x) => t >= x.start && t < x.end);
     const l = engine.lyrics.lineAt(t);
-    info.textContent = `${t.toFixed(2)}s  beat ${engine.audio.beatAt(t).toFixed(2)}  bar ${engine.audio.barAt(t).toFixed(2)}  [${e?.id ?? '—'}]  ${fps.toFixed(0)}fps   ${l ? '“' + l.text + '”' : ''}${loop ? '  LOOP' : ''}`;
+    info.textContent = `${label}  ${t.toFixed(2)}s  beat ${engine.audio.beatAt(t).toFixed(2)}  bar ${engine.audio.barAt(t).toFixed(2)}  [${e?.id ?? '—'}]  ${fps.toFixed(0)}fps   ${l ? '“' + l.text + '”' : ''}${loop ? '  LOOP' : ''}`;
     requestAnimationFrame(tick);
   };
   requestAnimationFrame(tick);
@@ -168,7 +216,7 @@ function setupPlayer() {
   if (import.meta.hot) {
     import.meta.hot.on('vite:afterUpdate', (payload: any) => {
       for (const u of payload.updates ?? []) {
-        const m = /scenes\/([\w-]+)\.ts/.exec(u.path ?? '');
+        const m = /(?:scenes|templates)\/([\w-]+)\.ts/.exec(u.path ?? '');
         if (m) for (const e of TIMELINE) if (e.id === m[1] || (e as any).file === m[1]) engine.reload(e.id);
       }
     });

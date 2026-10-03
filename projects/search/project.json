@@ -1,0 +1,71 @@
+{
+  "id": "search",
+  "title": "Acme Search: launch film",
+  "timeline": "src/projects/search/timeline.ts",
+  "formats": ["16:9", "9:16", "1:1"],
+  "languages": [
+    { "code": "en", "name": "English", "iso639_2": "eng" },
+    { "code": "de", "name": "Deutsch", "iso639_2": "deu" }
+  ],
+  "audio": {
+    "mix": "projects/search/audio/mix.{lang}.wav",
+    "music": "projects/search/audio/music.wav",
+    "voice": "projects/search/audio/voice.{lang}.wav"
+  },
+  "data": {
+    "lyrics": ["projects/search/data/{lang}/lyrics.json"],
+    "audio": ["projects/search/data/audio.json"]
+  },
+  "palette": {
+    "ink": "#0B1020",
+    "ink2": "#141B31",
+    "graphite": "#46506E",
+    "ash": "#A3ABC4",
+    "bone": "#F4F6FB",
+    "signal": "#2B5CF0",
+    "ember": "#7DA2FF",
+    "blood": "#1C3A9E",
+    "acid": "#FFC547"
+  },
+  "fonts": {
+    "display": { "builtin": "archivo", "width": 100 },
+    "text": { "builtin": "archivo", "width": 100 },
+    "mono": { "builtin": "mono" }
+  },
+  "post": { "bloom": 0.3, "bloomThreshold": 1.1, "halation": 0, "ca": 0, "grain": 0, "vignette": 0.12 },
+  "assets": {
+    "logo": "projects/search/brand/logo.svg",
+    "mark": "projects/search/brand/mark.svg"
+  },
+  "captions": {
+    "burnIn": true,
+    "maxChars": 38,
+    "maxLines": 2,
+    "minDur": 1.2,
+    "maxDur": 6,
+    "hold": 0.4,
+    "text": "bone",
+    "key": "ember",
+    "plate": "ink2"
+  },
+  "encode": {
+    "default": "brand",
+    "presets": {
+      "brand": { "crf": 18, "preset": "slow", "tune": "animation", "x264": "aq-mode=3", "profile": "high", "level": "auto", "gop": 2, "audioBitrate": "256k", "sampleRate": 48000 },
+      "draft": { "crf": 24, "preset": "veryfast", "tune": "animation", "profile": "high", "level": "auto", "gop": 2, "audioBitrate": "128k", "sampleRate": 48000 }
+    }
+  },
+  "platforms": {
+    "youtube": { "I": -14, "TP": -1, "LRA": 11 },
+    "social": { "I": -14, "TP": -1, "LRA": 9 },
+    "web": { "I": -16, "TP": -1, "LRA": 11 },
+    "broadcast": { "I": -23, "TP": -1, "LRA": 15 }
+  },
+  "mix": { "musicGain": -6, "duckThreshold": 0.03, "duckRatio": 8, "duckAttack": 40, "duckRelease": 450 },
+  "analysis": {
+    "profile": "search",
+    "script": "projects/search/script/{lang}.json",
+    "work": "analysis/work/search",
+    "qa": "analysis/qa/search"
+  }
+}

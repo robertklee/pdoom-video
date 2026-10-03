@@ -1,6 +1,7 @@
 // Typography: font registry (Canvas2D via FontFace + outlines via opentype.js),
 // glyph layout, text outlines as Path2D, and point sampling of text for particle effects.
 import * as opentype from 'opentype.js';
+import type { FontRole } from './manifest';
 
 /**
  * Font keys. Archivo comes in static width instances (w = wdth*10) x weights so we can
@@ -9,8 +10,11 @@ import * as opentype from 'opentype.js';
 export const ARCHIVO_WIDTHS = [620, 750, 875, 1000, 1125, 1250] as const;
 export const ARCHIVO_WEIGHTS = [300, 500, 700, 900] as const;
 
-/** `features`: OpenType features switched on for the face (Canvas2D has no font-feature-settings). */
-type FontDef = { family: string; file: string; features?: string };
+/**
+ * `features`: OpenType features switched on for the face (Canvas2D has no font-feature-settings).
+ * `file` is under fonts/ (app/public/fonts); `url` (brand fonts) is any served path.
+ */
+type FontDef = { family: string; file: string; url?: string; features?: string };
 const DEFS: FontDef[] = [];
 for (const w of ARCHIVO_WIDTHS) for (const wt of ARCHIVO_WEIGHTS) DEFS.push({ family: `Archivo-${w}-${wt}`, file: `Archivo-w${w}-${wt}.ttf` });
 for (const w of [750, 1000]) for (const wt of [400, 800]) DEFS.push({ family: `ArchivoItalic-${w}-${wt}`, file: `ArchivoItalic-w${w}-${wt}.ttf` });
@@ -22,6 +26,28 @@ for (const wt of [400, 600]) {
 for (const [n, f] of [['300', 'Light'], ['400', 'Regular'], ['500', 'Medium'], ['600', 'SemiBold'], ['700', 'Bold']] as const)
   DEFS.push({ family: `Plex-${n}`, file: `src/IBMPlexMono-${f}.ttf` });
 DEFS.push({ family: 'PlexItalic-400', file: 'src/IBMPlexMono-Italic.ttf' });
+
+export type FontRoleName = 'display' | 'text' | 'mono';
+const ROLES: Record<FontRoleName, FontRole> = {
+  display: { builtin: 'archivo', width: 100 },
+  text: { builtin: 'archivo', width: 100 },
+  mono: { builtin: 'mono' },
+};
+const brandWeights: Partial<Record<FontRoleName, number[]>> = {};
+
+/**
+ * A project's font roles (the manifest's `fonts`): bundled families or licensed brand files. Brand
+ * files are registered as `Brand-<role>-<weight>` and loaded with the bundled fonts (call before loadFonts).
+ */
+export function setFontRoles(roles: Partial<Record<FontRoleName, FontRole>> = {}) {
+  for (const [name, r] of Object.entries(roles) as [FontRoleName, FontRole][]) {
+    ROLES[name] = r;
+    if (!r.files) continue;
+    const ws = Object.keys(r.files).map(Number).sort((a, b) => a - b);
+    brandWeights[name] = ws;
+    for (const w of ws) DEFS.push({ family: `Brand-${name}-${w}`, file: '', url: r.files[String(w)]!, features: r.features });
+  }
+}
 
 /** Convenience family names. */
 export const F = {
@@ -41,6 +67,14 @@ export const F = {
     if (italic) return 'PlexItalic-400';
     return `Plex-${nearest([300, 400, 500, 600, 700], weight)}`;
   },
+  /** A project font role (display, text, mono) at the nearest weight: brand fonts or a bundled family. */
+  brand(role: FontRoleName, weight = 400): string {
+    const r = ROLES[role];
+    if (r.files) return `Brand-${role}-${nearest(brandWeights[role]!, weight)}`;
+    if (r.builtin === 'mono') return F.mono(weight);
+    if (r.builtin === 'serif') return F.serif(weight);
+    return F.archivo(r.width ?? 100, weight);
+  },
 };
 
 function nearest(list: number[], v: number) {
@@ -58,7 +92,9 @@ const bufCache = new Map<string, ArrayBuffer>();
 export async function loadFonts(): Promise<void> {
   await Promise.all(
     DEFS.map(async (d) => {
-      const buf = await (await fetch(`fonts/${d.file}`)).arrayBuffer();
+      const r = await fetch(d.url ?? `fonts/${d.file}`);
+      if (!r.ok) throw new Error(`font ${d.family}: ${d.url ?? d.file} (HTTP ${r.status})`);
+      const buf = await r.arrayBuffer();
       bufCache.set(d.family, buf);
       const ff = new FontFace(d.family, buf, d.features ? { featureSettings: d.features } : undefined);
       await ff.load();

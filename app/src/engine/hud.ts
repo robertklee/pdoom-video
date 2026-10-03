@@ -1,7 +1,10 @@
-// Global overlay: the crop-mark frame and the (normally hidden) corner P(doom) readout, plus the
-// legacy plate captions. The frame only appears at the bookends: the opening's sheet (the prompt's
-// canvas) and the outro's regenerate/loop — the rest of the video runs full-bleed.
+// Global overlay: the crop-mark frame and the (normally hidden) corner counter readout (P(doom) in the
+// music video), the legacy plate captions, and open captions of the voice-over for projects that burn
+// them in. The frame only appears at the bookends: the opening's sheet (the prompt's canvas) and the
+// outro's regenerate/loop — the rest of the video runs full-bleed.
 import { Layer2D, W, H } from './gl';
+import { Counter, type CounterOptions } from './counter';
+import type { Cue, CaptionStyle } from './captions';
 import { rgba } from './palette';
 import { F, font } from './type';
 import type { Lyrics } from './lyrics';
@@ -9,38 +12,20 @@ import { clamp, ease, hash, lerp, noise1, prog, smoothstep } from './util';
 
 export interface Caption { start: number; end: number; fig: string; text: string }
 
-/** P(doom) steps: each sung "P(doom)" raises the estimate. */
-export class PDoom {
-  steps: { t: number; v: number }[] = [];
+/** P(doom) steps: each sung "P(doom)" raises the estimate (a Counter cued by the word). */
+export class PDoom extends Counter {
   constructor(lyrics: Lyrics) {
     const hits = lyrics.findWords('P(doom)').map((w) => w.start + 0.06);
     const vals = [0.15, 0.42, 0.81, 0.99];
-    this.steps = [{ t: -1, v: 0.02 }, ...hits.map((t, i) => ({ t, v: vals[i] ?? 0.99 }))];
+    super([{ t: -1, v: 0.02 }, ...hits.map((t, i) => ({ t, v: vals[i] ?? 0.99 }))], PDOOM);
   }
-  /** Value at t with the roll animation of each step (~0.9 s) and slow drift between steps. */
-  value(t: number): number {
-    let i = 0;
-    while (i + 1 < this.steps.length && this.steps[i + 1]!.t <= t) i++;
-    const cur = this.steps[i]!, prev = this.steps[Math.max(0, i - 1)]!;
-    const k = i === 0 ? 1 : prog(t, cur.t, cur.t + 0.9, ease.outExpo);
-    const base = prev.v + (cur.v - prev.v) * k;
-    const next = this.steps[i + 1];
-    // slow creep toward the next value (never more than 20% of the gap)
-    const creep = next ? (next.v - cur.v) * 0.2 * smoothstep(cur.t + 1, next.t, t) : 0;
-    const jitter = noise1(t * 3.1, 7) * 0.004 * (1 - k * 0.5);
-    return clamp(base + creep + jitter, 0, 1);
-  }
-  /** 0..1 flash envelope right after a step. */
-  flash(t: number): number {
-    let f = 0;
-    for (const s of this.steps) if (t >= s.t && s.t > 0) f = Math.max(f, Math.pow(0.5, (t - s.t) / 0.35));
-    return f;
-  }
-  lastStep(t: number) { let s = this.steps[0]!; for (const x of this.steps) if (x.t <= t) s = x; return s; }
 }
 
 /** Canonical text format of a P(doom) value ('0.15', '0.991'). */
 export const formatPDoom = (v: number) => v.toFixed(v >= 0.99 ? 3 : 2);
+
+// roll ~0.9 s, then a slow creep toward the next value (never more than 20% of the gap), a live jitter
+const PDOOM: CounterOptions = { roll: 0.9, creep: 0.2, jitter: 0.004, seed: 7, min: 0, max: 1, format: formatPDoom, label: 'P(DOOM)' };
 
 /**
  * Draw the P(doom) instrument (label, digits, tick bar) anywhere, at any scale, into a
@@ -75,18 +60,23 @@ export interface HudState {
   opacity: number;
   /** 0..1 the crop-mark frame: 1 in place, 0 flown out past the edges (see PostParams.frame). */
   frame: number;
-  /** Opacity of the corner P(doom) readout (off by default: P(doom) lives inside the plates). */
+  /** Opacity of the corner counter readout (off by default: P(doom) lives inside the plates). */
   readout: number;
   /** 0..1: the plate is light (bone paper) — draw captions/crop marks in ink. */
   paper: number;
-  pdoomOverride?: string; // e.g. 'NaN'
+  readoutText?: string; // e.g. 'NaN'
   corruption?: number; // 0..1 glitch the readout
+  /** Opacity of the open (burned-in) captions. */
+  captions: number;
 }
+
+/** Burned-in captions: the cues and their resolved style. */
+export interface OpenCaptions { cues: Cue[]; style: CaptionStyle }
 
 export class Hud {
   layer = new Layer2D();
   private ink = false;
-  constructor(public pdoom: PDoom, public captions: Caption[]) {}
+  constructor(public counter: Counter | null, public captions: Caption[], public open: OpenCaptions | null = null) {}
 
   draw(t: number, st: HudState) {
     const L = this.layer;
@@ -96,8 +86,9 @@ export class Hud {
     c.globalAlpha = st.opacity;
     this.ink = st.paper > 0.5;
     if (st.frame > 0.001) this.cropMarks(c, st.frame);
-    if (st.readout > 0.001) { c.save(); c.globalAlpha *= st.readout; this.readout(c, t, st); c.restore(); }
+    if (st.readout > 0.001 && this.counter) { c.save(); c.globalAlpha *= st.readout; this.readout(c, t, st, this.counter); c.restore(); }
     this.caption(c, t);
+    if (this.open && st.captions > 0.001) { c.save(); c.globalAlpha *= st.captions; this.openCaption(c, t, this.open); c.restore(); }
     return L.upload();
   }
 
@@ -117,18 +108,18 @@ export class Hud {
     c.restore();
   }
 
-  private readout(c: CanvasRenderingContext2D, t: number, st: HudState) {
-    const v = this.pdoom.value(t);
-    const fl = this.pdoom.flash(t);
+  private readout(c: CanvasRenderingContext2D, t: number, st: HudState, k: Counter) {
+    const v = k.value(t);
+    const fl = k.flash(t);
     const x = 64, y = H - 66;
     c.save();
     c.textBaseline = 'alphabetic';
     c.font = font(F.mono(500), 13);
     c.letterSpacing = '3px';
     c.fillStyle = rgba('bone', 0.6);
-    c.fillText('P(DOOM)', x, y - 44);
+    c.fillText(k.o.label ?? '', x, y - 44);
     c.letterSpacing = '0px';
-    let s = st.pdoomOverride ?? v.toFixed(v >= 0.99 ? 3 : 2);
+    let s = st.readoutText ?? k.format(v);
     if (st.corruption && st.corruption > 0) {
       const glyphs = '01#%?!Ø∞';
       s = Array.from(s).map((ch, i) => (hash(i, Math.floor(t * 20)) < st.corruption! * 0.7 ? glyphs[Math.floor(hash(i, t) * glyphs.length)] : ch)).join('');
@@ -142,7 +133,7 @@ export class Hud {
     c.fillRect(x, by, bw, 1);
     for (let i = 0; i <= 10; i++) c.fillRect(x + (bw * i) / 10, by - (i % 5 === 0 ? 5 : 3), 1, i % 5 === 0 ? 5 : 3);
     c.fillStyle = rgba('signal', 1);
-    c.fillRect(x, by - 1, bw * clamp(v), 3);
+    c.fillRect(x, by - 1, bw * clamp(v / k.o.barMax), 3);
     c.restore();
   }
 
@@ -173,6 +164,66 @@ export class Hud {
     c.fillText(cap.fig, x - full, y - 34);
     c.restore();
   }
+
+  /**
+   * Open captions: the current cue centred low in the frame on an opaque plate (legible over any plate,
+   * contrast checked against the plate colour). Key terms turn to the highlight colour as they are spoken;
+   * the rest of the cue shows at once, so it can be read ahead of the voice.
+   */
+  private openCaption(c: CanvasRenderingContext2D, t: number, oc: OpenCaptions) {
+    const cue = oc.cues.find((k) => t >= k.start && t < k.end);
+    if (!cue) return;
+    const a = Math.min(smoothstep(cue.start - 0.08, cue.start + 0.08, t), 1 - smoothstep(cue.end - 0.12, cue.end, t));
+    if (a <= 0) return;
+    const st = oc.style;
+    const portrait = H > W;
+    const margin = Math.round(Math.min(W, H) * 0.06);
+    // the longest row fits the width; vertical video sits above the platforms' bottom UI (~20% of the height)
+    const longest = Math.max(...cue.rows.map((r) => r.length), 1);
+    const size = Math.round(Math.min(portrait ? 50 : 44, (W - 2 * margin - 48) / (longest * 0.56)));
+    const lh = Math.round(size * 1.32);
+    const bottom = portrait ? H * 0.78 : H - margin - 8;
+    const fam = F.brand('text', 600);
+    c.save();
+    c.globalAlpha *= a;
+    c.font = font(fam, size);
+    c.textBaseline = 'alphabetic';
+    c.textAlign = 'left';
+    cue.rows.forEach((_, ri) => {
+      const ws = cue.words.filter((w) => w.row === ri);
+      const space = c.measureText(' ').width;
+      const widths = ws.map((w) => c.measureText(w.w).width);
+      const tw = widths.reduce((s, x) => s + x, 0) + space * Math.max(0, ws.length - 1);
+      const y = bottom - (cue.rows.length - 1 - ri) * lh;
+      const px = size * 0.42, py = size * 0.26;
+      c.fillStyle = rgbaHex(st.plate, st.plateAlpha);
+      roundRect(c, (W - tw) / 2 - px, y - size * 0.98 - py, tw + 2 * px, size * 1.24 + 2 * py, size * 0.22);
+      let x = (W - tw) / 2;
+      ws.forEach((w, i) => {
+        const on = w.key ? smoothstep(w.start - 0.02, w.start + 0.1, t) : 0;
+        c.fillStyle = on > 0 ? mixHex(st.text, st.key, on) : st.text;
+        c.fillText(w.w, x, y);
+        x += widths[i]! + space;
+      });
+    });
+    c.restore();
+  }
+}
+
+function roundRect(c: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
+  c.beginPath();
+  c.roundRect(x, y, w, h, r);
+  c.fill();
+}
+
+function rgbaHex(hex: string, a: number) {
+  const n = parseInt(hex.replace('#', ''), 16);
+  return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
+}
+function mixHex(a: string, b: string, k: number) {
+  const pa = parseInt(a.replace('#', ''), 16), pb = parseInt(b.replace('#', ''), 16);
+  const ch = (n: number, s: number) => (n >> s) & 255;
+  return `rgb(${[16, 8, 0].map((s) => Math.round(ch(pa, s) + (ch(pb, s) - ch(pa, s)) * k)).join(',')})`;
 }
 
 function mix(a: string, b: string, k: number) {

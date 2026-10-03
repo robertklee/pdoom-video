@@ -1,4 +1,4 @@
-// Music analysis (data/audio.json) sampled at arbitrary song time.
+// Music analysis (data/audio.json, or a project's music bed) sampled at arbitrary time.
 
 export interface AudioJSON {
   duration: number;
@@ -42,12 +42,13 @@ export class AudioData {
     this.onsets = j.onsets ?? {};
   }
 
-  static async load(): Promise<AudioData> {
-    for (const url of ['data/audio.json', 'data/audio.approx.json']) {
+  /** The first of `urls` that serves JSON (the project manifest's data.audio). */
+  static async load(urls: string[] = ['data/audio.json', 'data/audio.approx.json']): Promise<AudioData> {
+    for (const url of urls) {
       const r = await fetch(url);
       if (r.ok && (r.headers.get('content-type') ?? '').includes('json')) return new AudioData(await r.json());
     }
-    throw new Error('no audio analysis data found');
+    throw new Error(`no audio analysis data found (${urls.join(', ')})`);
   }
 
   /** Linear-interpolated envelope value at time t. */

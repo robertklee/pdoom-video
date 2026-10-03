@@ -4,6 +4,7 @@
 import type * as THREE from 'three';
 import type { AudioData, AudioSample } from './audio';
 import type { Lyrics } from './lyrics';
+import type { Assets } from './assets';
 import type { Compositor } from './gl';
 import type { PostParams } from './post';
 
@@ -11,6 +12,8 @@ export interface SceneCtx {
   renderer: THREE.WebGLRenderer;
   audio: AudioData;
   lyrics: Lyrics;
+  /** The project's image assets (logos, marks): ctx.assets.draw(c, 'logo', x, y, w, h). */
+  assets: Assets;
   comp: Compositor;
   W: number;
   H: number;

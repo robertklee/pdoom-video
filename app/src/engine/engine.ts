@@ -1,14 +1,20 @@
 // The engine: owns the renderer, loads scenes for the timeline, renders any song time
 // deterministically (with preroll for stateful scenes), composites transitions, HUD, post.
+// What it renders comes from the selected project (project.ts): data, fonts, assets, post defaults.
 import * as THREE from 'three';
 import { AudioData } from './audio';
 import { Lyrics } from './lyrics';
 import { Compositor, FSPass, W, H, PW, PH, SCALE, SS_TAP, makeRT, clearRT } from './gl';
 import { DEFAULT_POST, Post, SHOULDER_GLSL, type PostParams } from './post';
-import { Hud, PDoom, type Caption } from './hud';
+import { Hud, type Caption, type OpenCaptions } from './hud';
+import type { Counter } from './counter';
 import type { Frame, Scene, SceneClass, SceneCtx, PostOverrides } from './scene';
-import { loadFonts } from './type';
+import { loadFonts, setFontRoles } from './type';
 import { loadStrokeFonts } from './stroke';
+import { Assets } from './assets';
+import { buildCues, checkContrast } from './captions';
+import { HEX, type PaletteKey } from './palette';
+import { BURN_IN, PATHS, PROJECT } from './project';
 
 export interface TimelineEntry {
   id: string;
@@ -27,6 +33,16 @@ export interface TimelineEntry {
 }
 
 interface Loaded { entry: TimelineEntry; scene: Scene | null; error?: string; lastT: number }
+
+/** A project's edit (its timeline module): the scene entries, and optionally the HUD readout's counter. */
+export type MakeTimeline = (lyrics: Lyrics, audio: AudioData) => TimelineEntry[];
+export type MakeCounter = (lyrics: Lyrics, audio: AudioData) => Counter | null;
+
+/** Post parameters before any scene overrides: the engine defaults with the project's (manifest `post`). */
+export function projectPost(over: Record<string, number> = PROJECT.post ?? {}): PostParams {
+  for (const k of Object.keys(over)) if (!(k in DEFAULT_POST)) throw new Error(`project post: unknown parameter '${k}'`);
+  return { ...DEFAULT_POST, ...over };
+}
 
 /**
  * Per-frame adaptive motion-blur sampling (see Engine.render): the sub-frame count steps through
@@ -77,14 +93,17 @@ export class Engine {
   private xfade: FSPass;
   private accum: FSPass;
   private lastT = -1;
-  lastPost: PostParams = { ...DEFAULT_POST };
+  /** Post parameters every frame starts from (the project's defaults). */
+  readonly basePost = projectPost();
+  lastPost: PostParams = { ...this.basePost };
   errors: string[] = [];
+  assets!: Assets;
   /** Suppress the HUD (captions, crop marks) — used when rendering plate thumbnails. */
   hudOff = false;
 
   timeline: TimelineEntry[] = [];
 
-  constructor(public canvas: HTMLCanvasElement, private makeTimeline: (lyrics: Lyrics, audio: AudioData) => TimelineEntry[]) {
+  constructor(public canvas: HTMLCanvasElement, private makeTimeline: MakeTimeline, private makeCounter?: MakeCounter) {
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: false, preserveDrawingBuffer: true, powerPreference: 'high-performance' });
     this.renderer.setPixelRatio(1);
     this.renderer.setSize(PW, PH, false);
@@ -139,17 +158,29 @@ export class Engine {
   }
 
   async init(only?: (e: TimelineEntry) => boolean) {
-    [this.audio, this.lyrics] = await Promise.all([AudioData.load(), Lyrics.load(), loadFonts(), loadStrokeFonts()]) as [AudioData, Lyrics, void, void];
+    setFontRoles(PROJECT.fonts);
+    [this.audio, this.lyrics, this.assets] = await Promise.all([
+      AudioData.load(PATHS.audio), Lyrics.load(PATHS.lyrics), Assets.load(PROJECT.assets), loadFonts(), loadStrokeFonts(),
+    ]) as [AudioData, Lyrics, Assets, void, void];
     this.timeline = this.makeTimeline(this.lyrics, this.audio);
-    this.ctx = { renderer: this.renderer, audio: this.audio, lyrics: this.lyrics, comp: this.comp, W, H, id: '', params: {}, start: 0, end: 0 };
+    this.ctx = { renderer: this.renderer, audio: this.audio, lyrics: this.lyrics, assets: this.assets, comp: this.comp, W, H, id: '', params: {}, start: 0, end: 0 };
     this.post = new Post();
     const captions: Caption[] = this.timeline.filter((e) => e.caption).map((e) => {
       const d = e.caption!.delay ?? 0.3;
       return { start: e.start + d, end: e.start + d + (e.caption!.dur ?? 4.5), fig: e.caption!.fig, text: e.caption!.text };
     });
-    this.hud = new Hud(new PDoom(this.lyrics), captions);
+    this.hud = new Hud(this.makeCounter?.(this.lyrics, this.audio) ?? null, captions, BURN_IN ? this.openCaptions() : null);
     const entries = only ? this.timeline.filter(only) : this.timeline;
     await Promise.all(entries.map((e) => this.loadEntry(e)));
+  }
+
+  /** Burned-in captions of the voice-over: cues from the word timings, colours from the palette. */
+  private openCaptions(): OpenCaptions {
+    const rules = PROJECT.captions ?? {};
+    const col = (k: string | undefined, d: PaletteKey) => HEX[(k ?? d) as PaletteKey] ?? k ?? HEX[d];
+    const style = { text: col(rules.text, 'bone'), key: col(rules.key, 'signal'), plate: col(rules.plate, 'ink'), plateAlpha: 0.94 };
+    for (const p of checkContrast(style)) this.errors.push(`[captions] ${p}`);
+    return { cues: buildCues(this.lyrics, rules), style };
   }
 
   private async loadEntry(e: TimelineEntry) {
@@ -206,7 +237,7 @@ export class Engine {
     const seeked = this.lastT < 0 || t < this.lastT - 1e-6 || t - this.lastT > Math.max(0.25, dt * 4);
     this.lastT = t;
     let outTex: THREE.Texture;
-    let post: PostParams = { ...DEFAULT_POST };
+    let post: PostParams = { ...this.basePost };
     let n = 1;
     if (samples === 1) {
       SS_TAP.value = -1;
@@ -266,7 +297,7 @@ export class Engine {
       outTex = this.avgRT.texture;
     }
     this.lastSamples = n;
-    const hudTex = this.hud.draw(t, { opacity: this.hudOff ? 0 : post.hud, frame: post.frame, readout: post.pdoom, paper: post.paper, pdoomOverride: post.pdoomText, corruption: post.hudCorruption });
+    const hudTex = this.hud.draw(t, { opacity: this.hudOff ? 0 : post.hud, frame: post.frame, readout: post.readout, paper: post.paper, readoutText: post.readoutText, corruption: post.hudCorruption, captions: post.captions });
     this.post.render(r, outTex, hudTex, this.finalRT, post, t);
     this.lastPost = post;
     if (toScreen) {
@@ -304,7 +335,7 @@ export class Engine {
     const r = this.renderer;
 
     const active = this.timeline.filter((e) => t >= e.start && t < e.end).sort((a, b) => a.start - b.start);
-    let post: PostParams = { ...DEFAULT_POST };
+    let post: PostParams = { ...this.basePost };
     let under: THREE.Texture | null = null;
     let outTex: THREE.Texture | null = null;
 

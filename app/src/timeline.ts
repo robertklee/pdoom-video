@@ -4,6 +4,8 @@ import type { TimelineEntry } from './engine/engine';
 import type { SceneClass } from './engine/scene';
 import type { Lyrics } from './engine/lyrics';
 import type { AudioData } from './engine/audio';
+import { edit } from './engine/edit';
+import { PDoom } from './engine/hud';
 
 // Scene modules are discovered lazily so a missing/broken scene never breaks the build.
 const modules = import.meta.glob<{ default: SceneClass }>('./scenes/*.ts');
@@ -12,17 +14,11 @@ const scene = (name: string) => () => {
   return m ? m() : Promise.reject(new Error(`scene module not found: scenes/${name}.ts`));
 };
 
+/** The HUD's corner readout (normally hidden: P(doom) is staged inside the plates). */
+export const makeCounter = (ly: Lyrics) => new PDoom(ly);
+
 export function makeTimeline(ly: Lyrics, au: AudioData): TimelineEntry[] {
-  /** Cut on the last beat at/before the first word of the matching line (never after the word). */
-  const cut = (q: string, nth = 0, tol = 0.02) => {
-    const s = ly.get(q, nth).words[0]!.start;
-    return au.timeOfBeat(Math.floor(au.beatAt(s + tol)));
-  };
-  /** Nearest downbeat to the end of a line. */
-  const after = (q: string, nth = 0) => {
-    const e = ly.get(q, nth).end;
-    return au.downbeats.reduce((b, d) => (Math.abs(d - e) < Math.abs(b - e) ? d : b), au.downbeats[0] ?? e);
-  };
+  const { cut, after } = edit(ly, au);
 
   const b = {
     loss: cut('There was a sudden drop'),

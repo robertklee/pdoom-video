@@ -1,0 +1,30 @@
+{
+  "id": "pdoom",
+  "title": "I'm Upping My P(doom)",
+  "timeline": "src/timeline.ts",
+  "formats": ["16:9"],
+  "audio": { "mix": "audio/pdoom.mp3" },
+  "data": {
+    "lyrics": ["data/lyrics.json", "data/lyrics.approx.json"],
+    "audio": ["data/audio.json", "data/audio.approx.json"]
+  },
+  "encode": {
+    "default": "master",
+    "presets": {
+      "master": { "crf": 16, "preset": "slow", "tune": "grain", "x264": "aq-mode=3", "audioBitrate": "320k" }
+    }
+  },
+  "plates": {
+    "ids": ["open", "loss", "room", "shoggoth", "spacetime", "ascent", "bureau", "leftturn", "paperclips", "fuse", "stack", "dense", "loom", "ilya"],
+    "times": "app/plates.json",
+    "dir": "app/public/plates"
+  },
+  "analysis": {
+    "profile": "pdoom",
+    "script": "lyrics/lyrics.src.js",
+    "stems": "analysis/stems/htdemucs_ft/pdoom",
+    "lead": "analysis/stems/karaoke/lead.wav",
+    "work": "analysis/work",
+    "qa": "analysis/qa"
+  }
+}

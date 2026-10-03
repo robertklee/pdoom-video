@@ -1,4 +1,7 @@
-// Word-timed lyrics (data/lyrics.json) with queries for karaoke rendering.
+// Word-timed lyrics or voice-over script (data/lyrics.json, projects/<id>/data/<lang>/lyrics.json)
+// with queries for karaoke and caption rendering. A script's lines carry ids ('proof.1') so the edit
+// can anchor to them in every language, its words a `key` flag (the highlighted terms), and the file
+// the localised on-screen UI strings (`ui`).
 import { smart } from './type';
 
 export interface Word {
@@ -7,6 +10,8 @@ export interface Word {
   end: number;
   conf?: number;
   syl?: [number, number][];
+  /** A key term of the script (marked *like this* in the source): highlighted in captions, cues counters. */
+  key?: boolean;
   /** filled in by Lyrics: */
   line: number;
   index: number; // index within line
@@ -14,16 +19,29 @@ export interface Word {
 }
 export interface Line {
   i: number;
+  /** Script line id (voice-over projects): stable across languages and script revisions. */
+  id?: string;
   text: string;
   start: number;
   end: number;
   words: Word[];
 }
 
+export interface LyricsJSON {
+  lines: (Omit<Line, 'words' | 'i'> & { words: Omit<Word, 'line' | 'index' | 'gi'>[] })[] | any[];
+  /** Language of the text (BCP 47). */
+  lang?: string;
+  /** Localised on-screen strings (UI labels, card titles), by key. */
+  ui?: Record<string, string>;
+}
+
 export class Lyrics {
   lines: Line[];
   words: Word[];
-  constructor(j: { lines: Omit<Line, 'words'> & { words: Omit<Word, 'line' | 'index' | 'gi'>[] }[] | any[] }) {
+  lang: string;
+  private uiStrings: Record<string, string>;
+  private ids = new Map<string, Line>();
+  constructor(j: LyricsJSON) {
     // display text gets curly apostrophes and quotes (the data keeps the typed ones); mono UI
     // text that wants them straight uses plain()
     this.lines = (j.lines as any[]).map((l, li) => ({
@@ -34,14 +52,43 @@ export class Lyrics {
     }));
     this.words = this.lines.flatMap((l) => l.words);
     this.words.forEach((w, i) => (w.gi = i));
+    for (const l of this.lines) if (l.id) {
+      if (this.ids.has(l.id)) throw new Error(`duplicate script line id: ${l.id}`);
+      this.ids.set(l.id, l);
+    }
+    this.lang = j.lang ?? 'en';
+    this.uiStrings = j.ui ?? {};
   }
 
-  static async load(): Promise<Lyrics> {
-    for (const url of ['data/lyrics.json', 'data/lyrics.approx.json']) {
+  /** The first of `urls` that serves JSON (the project manifest's data.lyrics). */
+  static async load(urls: string[] = ['data/lyrics.json', 'data/lyrics.approx.json']): Promise<Lyrics> {
+    for (const url of urls) {
       const r = await fetch(url);
       if (r.ok && (r.headers.get('content-type') ?? '').includes('json')) return new Lyrics(await r.json());
     }
-    throw new Error('no lyrics data found');
+    throw new Error(`no lyrics data found (${urls.join(', ')})`);
+  }
+
+  /** The script line with this id, or null. */
+  byId(id: string): Line | null {
+    return this.ids.get(id) ?? null;
+  }
+  /** Localised UI string; throws if missing unless a fallback is given (fail loudly while authoring). */
+  ui(key: string, fallback?: string): string {
+    const s = this.uiStrings[key] ?? fallback;
+    if (s === undefined) throw new Error(`ui string not found: ${key} (${this.lang})`);
+    return smart(s);
+  }
+  /** The key terms of a line (consecutive key words joined: 'renewal contracts'). */
+  keyTerms(l: Line): Word[][] {
+    const out: Word[][] = [];
+    let cur: Word[] = [];
+    for (const w of l.words) {
+      if (w.key) cur.push(w);
+      else if (cur.length) { out.push(cur); cur = []; }
+    }
+    if (cur.length) out.push(cur);
+    return out;
   }
 
   /** The line being sung at t (or null in gaps). */
@@ -65,9 +112,9 @@ export class Lyrics {
     const q = fold(s);
     return this.lines.filter((l) => fold(l.text).includes(q));
   }
-  /** First line containing `s`; throws if missing (fail loudly while authoring). */
+  /** The line with id `s`, else the nth line containing `s`; throws if missing (fail loudly while authoring). */
   get(s: string, nth = 0): Line {
-    const l = this.find(s)[nth];
+    const l = (nth === 0 ? this.byId(s) : null) ?? this.find(s)[nth];
     if (!l) throw new Error(`lyric not found: ${s}`);
     return l;
   }
@@ -83,6 +130,18 @@ export class Lyrics {
   findWords(s: string): Word[] {
     const q = norm(s);
     return this.words.filter((w) => norm(w.w) === q);
+  }
+  /** Every occurrence of a phrase as consecutive words ('half a second'), matched like findWords. */
+  findPhrase(s: string): Word[][] {
+    const q = s.split(/\s+/).map(norm).filter(Boolean);
+    if (!q.length) return [];
+    const out: Word[][] = [];
+    for (let i = 0; i + q.length <= this.words.length; i++) {
+      let ok = true;
+      for (let k = 0; k < q.length && ok; k++) ok = norm(this.words[i + k]!.w) === q[k];
+      if (ok) out.push(this.words.slice(i, i + q.length));
+    }
+    return out;
   }
 
   /**
@@ -117,5 +176,6 @@ export class Lyrics {
   }
 }
 
-export const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9()]/g, '');
+/** Comparison key of a word: lower case, letters (any script), digits and parentheses only. */
+export const norm = (s: string) => s.toLowerCase().replace(/[^\p{L}\p{N}()]/gu, '');
 const fold = (s: string) => s.toLowerCase().replace(/[\u2018\u2019]/g, "'").replace(/[\u201C\u201D]/g, '"');

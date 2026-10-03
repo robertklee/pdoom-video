@@ -3,7 +3,7 @@ import { cpSync } from 'node:fs';
 import path from 'node:path';
 
 const repoRoot = path.resolve(import.meta.dirname, '..');
-const assetDirs = ['audio', 'data'];
+const assetDirs = ['audio', 'data', 'projects'];
 
 // Git can check out directory symlinks as plain files on Windows. Serve the
 // original assets through Vite and copy them into builds without using symlinks.
